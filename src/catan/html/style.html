@@ -1,0 +1,162 @@
+<style>
+    :root {
+        --r1: calc(var(--r2) * 2/sqrt(3));
+        --r2: 10%;
+        --gap:1.5%
+    }
+    body {
+        display: flex;
+        align-items: center;
+        height: 100vh;
+        justify-content: center;
+        margin: 0;
+        background: #152441;
+    }
+    .tiles-grid {
+        position: relative;
+        height: 80vmin;
+        width: 80vmin;
+    }
+    .hex {
+        position: absolute;
+        height: calc( 2* var(--r1));
+        width: calc( 2* var(--r1));
+        transform: translate(-50%, -50%);
+    }
+
+    .hex[resource="0"] {
+        fill: #615338;
+    }
+    .hex[resource="1"] {
+        fill: #0c5517;
+    }
+    .hex[resource="2"] {
+        fill: #e46f52;
+    }
+    .hex[resource="3"] {
+        fill: #94d752;
+    }
+    .hex[resource="4"] {
+        fill: #ddcc66;
+    }
+    .hex[resource="5"] {
+        fill: #c3dbe2;
+    }
+
+    .h1{
+        top: calc(50% - 2*var(--r1) - var(--r2) - 2*sqrt(2)*var(--gap));
+        left: calc(50% - 2*var(--r2) - var(--gap))
+    }
+    .h2{
+        top: calc(50% - 2*var(--r1) - var(--r2) - 2*sqrt(2)*var(--gap));
+        left: 50%
+    }
+    .h3{
+        top: calc(50% - 2*var(--r1) - var(--r2) - 2*sqrt(2)*var(--gap));
+        left: calc(50% + 2*var(--r2) + var(--gap))
+    }
+    .h4{
+        top: calc(50% - var(--r1) - var(--r2)/2 - sqrt(2)*var(--gap));
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2)
+    }
+    .h5{
+        top: calc(50% - var(--r1) - var(--r2)/2 - sqrt(2)*var(--gap));
+        left: calc(50% - var(--r2) - var(--gap)/2)
+    }
+    .h6{
+        top: calc(50% - var(--r1) - var(--r2)/2 - sqrt(2)*var(--gap));
+        left: calc(50% + var(--r2) + var(--gap)/2)
+    }
+    .h7{
+        top: calc(50% - var(--r1) - var(--r2)/2 - sqrt(2)*var(--gap));
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2)
+    }
+    .h8{
+        top: 50%;
+        left: calc(50% - 4*var(--r2) - 2*var(--gap))
+    }
+    .h9{
+        top: 50%;
+        left: calc(50% - 2*var(--r2) - var(--gap))
+    }
+    .h10{
+        top: 50%;
+        left: 50%;
+    }
+    .h11{
+        top: 50%;
+        left: calc(50% + 2*var(--r2) + var(--gap))
+    }
+    .h12{
+        top: 50%;
+        left: calc(50% + 4*var(--r2) + var(--gap)*2)
+    }
+    .h13{
+        top: calc(50% + var(--r1) + var(--r2)/2 + sqrt(2)*var(--gap));
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2)
+    }
+    .h14{
+        top: calc(50% + var(--r1) + var(--r2)/2 + sqrt(2)*var(--gap));
+        left: calc(50% - var(--r2) - var(--gap)/2)
+    }
+    .h15{
+        top: calc(50% + var(--r1) + var(--r2)/2 + sqrt(2)*var(--gap));
+        left: calc(50% + var(--r2) + var(--gap)/2)
+    }
+    .h16{
+        top: calc(50% + var(--r1) + var(--r2)/2 + sqrt(2)*var(--gap));
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2)
+    }
+    .h17{
+        top: calc(50% + 2*var(--r1) + var(--r2) + 2*sqrt(2)*var(--gap));
+        left: calc(50% - 2*var(--r2) - var(--gap))
+    }
+    .h18{
+        top: calc(50% + 2*var(--r1) + var(--r2) + 2*sqrt(2)*var(--gap));
+        left: 50%
+    }
+    .h19{
+        top: calc(50% + 2*var(--r1) + var(--r2) + 2*sqrt(2)*var(--gap));
+        left: calc(50% + 2*var(--r2) + var(--gap))
+    }
+    .number-token {
+        pointer-events: none;
+        position: absolute;
+        display: flex;
+        font-size: 4vmin;
+        transform: translate(-50%, -50%);
+        font-family: fantasy;
+        border-radius: 29%;
+        height: 6%;
+        width: 8%;
+        background-color: #f7f7f7;
+        justify-content: center;
+        align-items: center;
+        padding-bottom: 1.2%;
+        box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    }
+    .number-token[number="2"]:after, .number-token[number="12"]:after{
+        content: "\2022";
+    }
+    .number-token[number="3"]:after, .number-token[number="11"]:after{
+        content: "\2022\2022";
+    }
+    .number-token[number="4"]:after, .number-token[number="10"]:after{
+        content: "\2022\2022\2022";
+    }
+    .number-token[number="5"]:after, .number-token[number="9"]:after{
+        content: "\2022\2022\2022\2022";
+    }
+    .number-token[number="6"]:after, .number-token[number="8"]:after{
+        content: "\2022\2022\2022\2022\2022";
+    }
+    .number-token:after {
+        position: absolute;
+        font-family: serif;
+        bottom: -5%;
+        font-size: 2vmin;
+    }
+    .number-token[number="6"], .number-token[number="8"]{
+        color: rgb(255, 0, 34);
+    }
+    </style>
