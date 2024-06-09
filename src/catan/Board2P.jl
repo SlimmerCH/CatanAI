@@ -40,8 +40,8 @@ struct PlayerBitboard
 end
 
 struct StaticBoard
-    tile_to_resource::Vector{Int8}
-    tile_to_number::Vector{Int8}
+    tile_to_resource::NTuple{19, Int8}
+    tile_to_number::NTuple{19, Int8}
     function StaticBoard()
         tile_to_resource = generate_tile_to_resource_lookup()
         tile_to_number = generate_tile_to_number_lookup(tile_to_resource)
