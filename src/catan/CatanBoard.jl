@@ -1,6 +1,6 @@
 module CatanBoard
 
-    export Board2P, DynamicBoard2P, display!
+    export Board2P, DynamicBoard2P, display!, rand
 
     include("Board2P.jl")
     include("BoardStructure.jl")
