@@ -1,6 +1,11 @@
+# This project uses the HTTP.jl library.
+# HTTP.jl is licensed under the MIT "Expat" License.
+
 module LocalServer
 
     using Base: run
+    using HTTP
+    using Base.Threads: @spawn
 
     global response_html::String = ""
     global server_task = nothing
@@ -10,9 +15,6 @@ module LocalServer
         global response_html
         return HTTP.Response(200, response_html)
     end
-
-    using HTTP
-    using Base.Threads: @spawn
 
     function launch()
         global server_running, server_task

@@ -9,14 +9,15 @@
     }
     body {
         display: flex;
+        flex-direction: column;
         align-items: center;
         height: 100vh;
-        justify-content: center;
+        justify-content: bottom;
         margin: 0;
-        background: linear-gradient(112deg, #eceddc, #dbbc82);
     }
     .tiles-grid {
         position: relative;
+        margin: auto;
         height: 80vmin;
         width: 80vmin;
     }
@@ -408,6 +409,34 @@
     .n38, .r39 {
         top: calc(50% + var(--r1)/2 + var(--smgap)/2);
         left: calc(50% + 5*var(--r2) + 5*var(--gap)/2);
+    }
+    .footer {
+        font-family: sans-serif;
+        display: flex;
+        width: 100vw;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        background-color: #fff;
+        font-size: 1.5vmin;
+        height: 7%;
+        width: 100vw;
+    }
+    a {
+        color: #5967d8;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline !important;
+    }
+    .ic {
+        height: 1.3vmin;
+        translate: 0 10%;
+        padding: 0.06vmin;
+    }
+    .ic1 {
+        padding-left: 0.6vmin;
     }
 
     .road {
