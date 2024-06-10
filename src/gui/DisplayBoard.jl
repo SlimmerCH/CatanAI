@@ -19,6 +19,8 @@ function display!(board::Board2P)
             $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2'>$house_path</svg>" for i in 1:54 if board.dynamic.p2_bitboard.settlement_bitboard(i) ], "\n") )
             $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1'>$building_path</svg>" for i in 1:54 if board.dynamic.p1_bitboard.city_bitboard(i) ], "\n") )
             $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2'>$building_path</svg>" for i in 1:54 if board.dynamic.p2_bitboard.city_bitboard(i) ], "\n") )
+            $(join( [ "<div class='road r$i p1'></div>" for i in 1:72 if board.dynamic.p1_bitboard.road_bitboard(i) ], "\n") )
+            $(join( [ "<div class='road r$i p2'></div>" for i in 1:72 if board.dynamic.p2_bitboard.road_bitboard(i) ], "\n") )
             </div>
         </body>
         </html>

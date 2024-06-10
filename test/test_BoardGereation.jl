@@ -17,4 +17,7 @@ using .CatanBoard
     @test length(generate_tile_to_resource_lookup()) == 19
     @test sum(generate_tile_to_number_lookup(generate_tile_to_resource_lookup())) == sum([5,2,6,3,8,10,9,12,11,4,8,10,9,4,5,6,3,11])
     @test Board2P() isa Board2P
+
+    ranboard = rand(Board2P)
+    @test 0b0 == ranboard.dynamic.p1_bitboard.settlement_bitboard & ranboard.dynamic.p1_bitboard.city_bitboard & ranboard.dynamic.p2_bitboard.settlement_bitboard & ranboard.dynamic.p2_bitboard.city_bitboard
 end
