@@ -1,5 +1,5 @@
 include("../src/catan/CatanBoard.jl")
 using .CatanBoard
 
-task = display!(Board2P())
-fetch(task)
+task = display!(rand(Board2P))
+sleep(4)

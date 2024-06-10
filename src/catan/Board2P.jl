@@ -62,14 +62,21 @@ struct DynamicBoard2P
     p1_bitboard::PlayerBitboard
     p2_bitboard::PlayerBitboard
     bank::Resources
-    function DynamicBoard2P()
-        new(PlayerBitboard(), PlayerBitboard(), Resources())
+
+    
+    function DynamicBoard2P(p1_bitboard::PlayerBitboard, p2_bitboard::PlayerBitboard, bank::Resources)
+        new(p1_bitboard, p2_bitboard, bank)
     end
+    function DynamicBoard2P() new(PlayerBitboard(), PlayerBitboard(), Resources()) end
 end
 
 struct Board2P
     static::StaticBoard
     dynamic::DynamicBoard2P
+
+    function Board2P(static::StaticBoard, dynamic::DynamicBoard2P)
+        new(static, dynamic)
+    end
     function Board2P()
         new(StaticBoard(), DynamicBoard2P())
     end
@@ -115,15 +122,14 @@ function rand(type::Type{PlayerBitboard})::PlayerBitboard
 end
 
 function rand(type::Type{Board2P})::Board2P
-    board::Board2P = Board2P()
-    Board2P.dynamic.p1_bitboard = rand(PlayerBitboard)
-    Board2P.dynamic.p2_bitboard = rand(PlayerBitboard)
-    Board2P.dynamic.bank = Resources(
+    p1_bitboard = rand(PlayerBitboard)
+    p2_bitboard = rand(PlayerBitboard)
+    bank = Resources(
         Int8(rand(0:19)),
         Int8(rand(0:19)),
         Int8(rand(0:19)),
         Int8(rand(0:19)),
         Int8(rand(0:19))
     )
-    return board
+    return Board2P(StaticBoard(), DynamicBoard2P(p1_bitboard, p2_bitboard, bank))
 end

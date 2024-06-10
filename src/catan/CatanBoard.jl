@@ -3,8 +3,9 @@ module CatanBoard
     export Board2P, DynamicBoard2P, display!, rand
 
     include("Board2P.jl")
+    include("BitOperations.jl")
     include("BoardStructure.jl")
     include("../gui/DisplayBoard.jl")
-    include("BitOperations.jl")
+    
 end
 
