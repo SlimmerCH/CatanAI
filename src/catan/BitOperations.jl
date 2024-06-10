@@ -12,6 +12,10 @@ function check_bit(uInt::Unsigned, position::Integer)::Bool
     return (uInt >> (position-1)) & UInt8(1) == UInt8(1)
 end
 
+function flip_bit(uInt::Unsigned, position::Integer)::Unsigned
+    return uInt ⊻ (UInt8(1) << (position-1))
+end
+
 function (uInt::Unsigned)(position::Integer)::Bool
     return check_bit(uInt, position)
 end

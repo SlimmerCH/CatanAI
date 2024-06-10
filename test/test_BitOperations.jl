@@ -15,4 +15,6 @@ include("../src/catan/BitOperations.jl")
     @test uint(5) == 0
     @test set_bit(UInt8(0b01011), 1) isa UInt8
     @test set_bit(UInt16(0b01011), 1) isa UInt16
+    @test flip_bit(0b01011, 1) == 0b01010
+    @test flip_bit(0b11010, 3) == 0b11110
 end

@@ -30,7 +30,7 @@ struct Resources
     function Resources() new(Int8(0), Int8(0), Int8(0), Int8(0), Int8(0)) end
 end
 
-struct PlayerBitboard
+struct PlayerStats
     settlement_bitboard::UInt64
     city_bitboard::UInt64
     road_bitboard::UInt128
@@ -39,13 +39,12 @@ struct PlayerBitboard
     resources::Resources
     cards::Cards
 
-    resource_points::Resources
     vp::Int8
 
-    function PlayerBitboard(settlement_bitboard::UInt64, city_bitboard::UInt64, road_bitboard::UInt128, tradeport_bitfield::UInt8, resources::Resources, cards::Cards, resource_points::Resources, vp::Integer)
-        new(settlement_bitboard, city_bitboard, road_bitboard, tradeport_bitfield, resources, cards, resource_points, Int8(vp))
+    function PlayerStats(settlement_bitboard::UInt64, city_bitboard::UInt64, road_bitboard::UInt128, tradeport_bitfield::UInt8, resources::Resources, cards::Cards, vp::Integer)
+        new(settlement_bitboard, city_bitboard, road_bitboard, tradeport_bitfield, resources, cards, Int8(vp))
     end
-    function PlayerBitboard() new(UInt64(0), UInt64(0), UInt128(0), UInt8(0), Resources(), Cards(), Resources(), Int8(0)) end
+    function PlayerStats() new(UInt64(0), UInt64(0), UInt128(0), UInt8(0), Resources(), Cards(), Int8(0)) end
 end
 
 struct StaticBoard
@@ -58,16 +57,15 @@ struct StaticBoard
     end
 end
 
-struct DynamicBoard2P
-    p1_bitboard::PlayerBitboard
-    p2_bitboard::PlayerBitboard
+mutable struct DynamicBoard2P
+    p1_bitboard::PlayerStats
+    p2_bitboard::PlayerStats
     bank::Resources
-
     
-    function DynamicBoard2P(p1_bitboard::PlayerBitboard, p2_bitboard::PlayerBitboard, bank::Resources)
+    function DynamicBoard2P(p1_bitboard::PlayerStats, p2_bitboard::PlayerStats, bank::Resources)
         new(p1_bitboard, p2_bitboard, bank)
     end
-    function DynamicBoard2P() new(PlayerBitboard(), PlayerBitboard(), Resources()) end
+    function DynamicBoard2P() new(PlayerStats(), PlayerStats(), Resources(), ) end
 end
 
 struct Board2P
@@ -82,23 +80,27 @@ struct Board2P
     end
 end
 
-function rand(type::Type{PlayerBitboard})::PlayerBitboard
+function get_player_turn(dynamicboard::DynamicBoard2P)::Bool
+    return dynamicboard.p1_bitboard.settlement_bitboard(64)
+end
+function get_player_turn(dynamicboard::DynamicBoard2P)::Bool
+    return dynamicboard.p1_bitboard.settlement_bitboard(64)
+end
+
+function rand(type::Type{PlayerStats})::PlayerStats
     resources = rand(Resources)
 
     cards = rand(Cards)
 
-    resource_points = rand(Resources)
-
     vp = Int8(rand(0:9))
 
-    return PlayerBitboard(
+    return PlayerStats(
         UInt64(rand(UInt64)),
         UInt64(rand(UInt64)),
         UInt128(rand(UInt128)),
         UInt8(rand(UInt8)),
         resources,
         cards,
-        resource_points,
         vp
     )
 end
@@ -132,8 +134,8 @@ function rand(type::Type{Board2P})::Board2P
     s1 = rand(UInt128) & rand(UInt128)
     s2 = rand(UInt128) & ~s1
 
-    p1_bitboard = PlayerBitboard(b1, b2, s1, rand(UInt8), rand(Resources), rand(Cards), rand(Resources), rand(0:9))
-    p2_bitboard = PlayerBitboard(b3, b4, s2, rand(UInt8), rand(Resources), rand(Cards), rand(Resources), rand(0:9))
+    p1_bitboard = PlayerStats(b1, b2, s1, rand(UInt8), rand(Resources), rand(Cards), rand(0:9))
+    p2_bitboard = PlayerStats(b3, b4, s2, rand(UInt8), rand(Resources), rand(Cards), rand(0:9))
     bank = rand(Resources)
 
     return Board2P(StaticBoard(), DynamicBoard2P(p1_bitboard, p2_bitboard, bank))
