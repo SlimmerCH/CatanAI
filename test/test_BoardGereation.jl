@@ -3,6 +3,9 @@ using Test
 include("../src/catan/CatanBoard.jl")
 include("../src/catan/BoardStructure.jl")
 using .CatanBoard
+using Base: summarysize
+
+@show Board2P().dynamic |> summarysize # The dynamic component must utilize memory efficiently to ensure the tree search operates smoothly.
 
 @testset "Game Generation" begin
     for i in 1:20 @test random_starting_index() ∈ [1,3,5,7,9,11] end
