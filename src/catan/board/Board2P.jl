@@ -1,3 +1,4 @@
+include("BitOperations.jl")
 import Random: rand
 
 # Bitboard Representation goes brrrrrrrrrrrrr
@@ -6,7 +7,7 @@ import Random: rand
 # Edges: 72
 # Tiles: 19
 
-struct Cards
+mutable struct Cards
     knight_cards::Int8
     road_cards::Int8
     monopoly_cards::Int8
@@ -18,7 +19,7 @@ struct Cards
     function Cards() new(Int8(0), Int8(0), Int8(0), Int8(0), Int8(0)) end
 end
 
-struct Resources
+mutable struct Resources
     wood::Int8
     brick::Int8
     sheep::Int8
@@ -30,7 +31,7 @@ struct Resources
     function Resources() new(Int8(0), Int8(0), Int8(0), Int8(0), Int8(0)) end
 end
 
-struct PlayerStats
+mutable struct PlayerStats
     settlement_bitboard::UInt64
     city_bitboard::UInt64
     road_bitboard::UInt128
@@ -60,12 +61,12 @@ end
 mutable struct DynamicBoard2P
     p1_bitboard::PlayerStats
     p2_bitboard::PlayerStats
-    bank::Resources
+    bank::UInt64
     
-    function DynamicBoard2P(p1_bitboard::PlayerStats, p2_bitboard::PlayerStats, bank::Resources)
+    function DynamicBoard2P(p1_bitboard::PlayerStats, p2_bitboard::PlayerStats, bank::UInt64)
         new(p1_bitboard, p2_bitboard, bank)
     end
-    function DynamicBoard2P() new(PlayerStats(), PlayerStats(), Resources(), ) end
+    function DynamicBoard2P() new(PlayerStats(), PlayerStats(), Resources()) end
 end
 
 struct Board2P
@@ -81,10 +82,32 @@ struct Board2P
 end
 
 function get_player_turn(dynamicboard::DynamicBoard2P)::Bool
-    return dynamicboard.p1_bitboard.settlement_bitboard(64)
+    return dynamicboard.p1_bitboard.settlement_bitboard(55)
 end
-function get_player_turn(dynamicboard::DynamicBoard2P)::Bool
-    return dynamicboard.p1_bitboard.settlement_bitboard(64)
+
+function flip_player_turn()
+    turn::Bool = get_player_turn(dynamicboard)
+    return flip_bit(dynamicboard.p1_bitboard.settlement_bitboard, 55)
+end
+
+function get_resource(player::PlayerStats, resource::Int8)::Int8
+    index = 73 + (resource - 1)*5
+    return read_binary_range(player.road_bitboard, index, index+5)
+end
+
+function set_resouce(player::PlayerStats, resource::Int8, value::Int8)
+    index = 73 + (resource - 1)*5
+    return write_binary_range(player.road_bitboard, index, index+5, value)
+end
+
+function get_resource(bank::Unsigned, resource::Int8)::Int8
+    index = 1 + (resource - 1)*5
+    return read_binary_range(bank, index, index+5)
+end
+
+function set_resouce(bank::Unsigned, resource::Int8, value::Int8)
+    index = 1 + (resource - 1)*5
+    return write_binary_range(bank, index, index+5, value)
 end
 
 function rand(type::Type{PlayerStats})::PlayerStats

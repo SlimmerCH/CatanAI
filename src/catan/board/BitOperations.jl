@@ -8,6 +8,14 @@ function clear_bit(uInt::Unsigned, position::Integer)::Unsigned
     return uInt & ~(UInt8(1) << (position-1))
 end
 
+function write_bit(uInt::Unsigned, position::Integer, value::Bool)::Unsigned
+    if value
+        return set_bit(uInt, position)
+    else
+        return clear_bit(uInt, position)
+    end
+end
+
 function check_bit(uInt::Unsigned, position::Integer)::Bool
     return (uInt >> (position-1)) & UInt8(1) == UInt8(1)
 end

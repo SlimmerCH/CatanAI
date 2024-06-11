@@ -9,6 +9,11 @@ include("../src/catan/board/BitOperations.jl")
     @test clear_bit(0b01011, 1) == 0b01010
     @test clear_bit(0b11010, 3) == 0b11010
 
+    @test write_bit(0b01011, 1, true) == 0b01011
+    @test write_bit(0b01011, 1, false) == 0b01010
+    @test write_bit(0b11010, 3, true) == 0b11110
+    @test write_bit(0b11010, 3, false) == 0b11010
+
     uint::UInt8 = 0b01011
     @test uint(1) == 1
     @test uint(2) == 1
