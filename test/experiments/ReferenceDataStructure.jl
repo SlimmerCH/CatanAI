@@ -92,7 +92,7 @@ mutable struct Board
     end
 end
 
-include("../../data/tile_to_node.jl")
+include("../../src/data/tile_to_node.jl")
 
 
 

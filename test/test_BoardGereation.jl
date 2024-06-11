@@ -1,7 +1,7 @@
 using Test
 
 include("../src/catan/CatanBoard.jl")
-include("../src/catan/BoardStructure.jl")
+include("../src/catan/BoardGeneration.jl")
 using .CatanBoard
 using Base: summarysize
 

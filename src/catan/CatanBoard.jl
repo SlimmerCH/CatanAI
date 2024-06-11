@@ -4,7 +4,7 @@ module CatanBoard
 
     include("Board2P.jl")
     include("BitOperations.jl")
-    include("BoardStructure.jl")
+    include("BoardGeneration.jl")
     include("../gui/DisplayBoard.jl")
     
 end
