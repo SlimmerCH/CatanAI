@@ -1,4 +1,4 @@
-include("../src/catan/CatanBoard.jl")
+include("../src/catan/board/CatanBoard.jl")
 using .CatanBoard
 
 task = display!(rand(Board2P))

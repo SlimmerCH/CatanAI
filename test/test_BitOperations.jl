@@ -1,6 +1,6 @@
 using Test
 
-include("../src/catan/BitOperations.jl")
+include("../src/catan/board/BitOperations.jl")
 
 @testset "Bit Operations" begin
     @test set_bit(0b01011, 1) == 0b01011
