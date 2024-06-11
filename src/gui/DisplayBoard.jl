@@ -11,7 +11,7 @@ function display!(board::Board2P)
     html::String = """
         <html>
         <head>
-        $(read(pwd()*"html/style.html", String))
+        $(read(pwd()*"/src/gui/html/style.html", String))
         </head>
         <body>
             <div class='tiles-grid'>
