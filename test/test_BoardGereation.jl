@@ -7,7 +7,7 @@ using Base: summarysize
 
 @show Board2P().dynamic |> summarysize # The dynamic component must utilize memory efficiently to ensure the tree search operates smoothly.
 
-@testset "Game Generation" begin
+@testset "Board Generation" begin
     for i in 1:20 @test random_starting_index() ∈ [1,3,5,7,9,11] end
     @test out_to_inner_ring(1) == 1
     @test out_to_inner_ring(3) == 2
