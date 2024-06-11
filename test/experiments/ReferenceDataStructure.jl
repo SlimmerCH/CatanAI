@@ -22,11 +22,11 @@ mutable struct Player
 end
 
 mutable struct Building
-    ownership::Player
+    ownership::Base.RefValue{Player}
     is_city::Bool
 end
 mutable struct Road
-    ownership::Player
+    ownership::Base.RefValue{Player}
 end
 
 
@@ -58,13 +58,13 @@ mutable struct Board
             resource = rand(Int8)
 
             for j in 1:6
-                owner = [bank, p1, p2][rand(1:3)]
+                owner = [Ref(bank), Ref(p1), Ref(p2)][rand(1:3)]
                 is_city = rand(Bool)
                 push!(nodes, Building(owner, is_city))
             end
 
             for j in 1:6
-                owner = [bank, p1, p2][rand(1:3)]
+                owner = [Ref(bank), Ref(p1), Ref(p2)][rand(1:3)]
                 push!(roads, Road(owner))
             end
 
@@ -74,6 +74,7 @@ mutable struct Board
 
             push!(tiles, Tile(nodes, roads, number, resource))
             if i==1
+                @show typeof(nodes)
                 @show nodes |> summarysize
                 @show roads |> summarysize
                 @show p1 |> summarysize
@@ -95,4 +96,6 @@ include("../../data/tile_to_node.jl")
 
 
 
-@show Board() |> summarysize
+board = Board()
+@show board |> summarysize
+@show board.tiles[1].nodes[1].ownership |> summarysize
