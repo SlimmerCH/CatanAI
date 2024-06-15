@@ -3,9 +3,6 @@
 using Base: summarysize
 using Random: rand
 
-include("../../src/catan/CatanBoard.jl")
-using .CatanBoard
-
 function get_size(T::Type)
     return T |> rand |> summarysize
 end
