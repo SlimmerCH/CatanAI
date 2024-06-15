@@ -1,4 +1,4 @@
-include("../data/node_to_tile.jl")
+include("../src/data/node_to_tile.jl")
 
 # Initialize an empty dictionary to store the reverse mapping
 tile_to_node = Dict{Int8, Vector{Int}}()
