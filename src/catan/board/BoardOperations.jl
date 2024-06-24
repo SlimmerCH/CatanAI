@@ -34,7 +34,7 @@ function flip_player_turn()
 end
 
 
-function get_resource_value(player::PlayerStats, resource::Integer)::Int8
+function get_resource(player::PlayerStats, resource::Integer)::Int8
     index::Int8 = starting_index[1] + (resource - 1) * bit_usage[1]
     return read_binary_range(
         player.road_bitboard,
@@ -43,7 +43,7 @@ function get_resource_value(player::PlayerStats, resource::Integer)::Int8
     )
 end
 
-function get_resource_value(bank::Unsigned, resource::Integer)::Int8
+function get_resource(bank::Unsigned, resource::Integer)::Int8
     index::Int8  = 1 + (resource - 1)*bit_usage[1]
     return read_binary_range(bank,
     index,
@@ -51,7 +51,7 @@ function get_resource_value(bank::Unsigned, resource::Integer)::Int8
 end
 
 
-function set_resouce_value(player::PlayerStats, resource::Integer, value::Integer)
+function set_resource(player::PlayerStats, resource::Integer, value::Integer)
     index::Int8  = starting_index[1] + (resource - 1) * bit_usage[1]
     return write_binary_range(
         player.road_bitboard,
@@ -61,7 +61,7 @@ function set_resouce_value(player::PlayerStats, resource::Integer, value::Intege
     )
 end
 
-function set_resouce_value(bank::Unsigned, resource::Integer, value::Integer)
+function set_resource(bank::Unsigned, resource::Integer, value::Integer)
     index::Int16  = 1 + (resource - 1) * bit_usage[1]
     return write_binary_range(
         bank,
@@ -103,7 +103,7 @@ function can_afford(bank::Unsigned, resource_type::Integer, value::Integer)::Boo
 end
 
 
-function get_card_value(player::PlayerStats, card_type::Integer)::Int8
+function get_card(player::PlayerStats, card_type::Integer)::Int8
     index::Int8 = starting_index[1] + sum(bit_usage[1:0+card_type])
     return read_binary_range(
         player.road_bitboard,
@@ -112,11 +112,41 @@ function get_card_value(player::PlayerStats, card_type::Integer)::Int8
     )
 end
 
-function get_card_value(bank::Unsigned, card_type::Integer)::Int8
+function get_card(bank::Unsigned, card_type::Integer)::Int8
     index::Int8 = 1 + sum(bit_usage[1:0+card_type])
     return read_binary_range(
         bank,
         index,
         index + bit_usage[card_type+1]
     )
+end
+
+function set_card(player::PlayerStats, card_type::Integer, value::Integer)
+    index::Int8 = starting_index[1] + sum(bit_usage[1:0+card_type])
+    return write_binary_range(
+        player.road_bitboard,
+        index,
+        index + bit_usage[card_type+1],
+        value
+    )
+end
+
+function set_card(bank::Unsigned, card_type::Integer, value::Integer)
+    index::Int8 = 1 + sum(bit_usage[1:0+card_type])
+    return write_binary_range(
+        bank,
+        index,
+        index + bit_usage[card_type+1],
+        value
+    )
+end
+
+function add_card(player::PlayerStats, card_type::Integer, value::Integer)
+    current::Int8 = get_card(player, card_type)
+    return set_card(player, card_type, current + value)
+end
+
+function add_card(bank::Unsigned, card_type::Integer, value::Integer)
+    current::Int8 = get_card(bank, card_type)
+    return set_card(bank, card_type, current + value)  
 end
