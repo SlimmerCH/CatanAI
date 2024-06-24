@@ -5,8 +5,6 @@ include("../src/catan/board/BoardGeneration.jl")
 using .CatanBoard
 using Base: summarysize
 
-@show Board2P().dynamic |> summarysize # The dynamic component must utilize memory efficiently to ensure the tree search operates smoothly.
-
 @testset "Board Generation" begin
     for i in 1:20 @test random_starting_index() ∈ [1,3,5,7,9,11] end
     @test out_to_inner_ring(1) == 1
@@ -24,3 +22,6 @@ using Base: summarysize
     ranboard = rand(Board2P)
     @test 0b0 == ranboard.dynamic.p1_bitboard.settlement_bitboard & ranboard.dynamic.p1_bitboard.city_bitboard & ranboard.dynamic.p2_bitboard.settlement_bitboard & ranboard.dynamic.p2_bitboard.city_bitboard
 end
+
+b = rand(Board2P)
+@show CatanBoard.get_card_value(b.dynamic.p1_bitboard, Int8(1))

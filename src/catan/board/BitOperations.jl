@@ -28,7 +28,7 @@ function (uInt::Unsigned)(position::Integer)::Bool
     return check_bit(uInt, position)
 end
 
-function read_binary_range(uInt::UIntT, pos1::Int, pos2::Int)::UInt where {UIntT <: Unsigned}
+function read_binary_range(uInt::UIntT, pos1::Integer, pos2::Integer)::UInt where {UIntT <: Unsigned}
 
     # Validate input. Remove later for performance
     if pos1 < 1 || pos2 < 1 || pos1 > sizeof(UIntT) * 8 || pos2 > sizeof(UIntT) * 8
