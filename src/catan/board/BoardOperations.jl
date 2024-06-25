@@ -145,3 +145,32 @@ function add_card(bank::Bank, card_type::Integer, value::Integer)
     current::Int8 = get_card(bank, card_type)
     return set_card(bank, card_type, current + value)  
 end
+
+function get_building(player::PlayerStats, index::Integer)::Int8
+    if player.city_bitboard(index)
+        return 2
+    elseif player.settlement_bitboard(index)
+        return 1
+    else
+        return 0
+    end
+end
+
+function set_building(player::PlayerStats, index::Integer, type::Int8)
+    if value == 2
+        player.city_bitboard = set_bit(player.city_bitboard, index)
+        player.settlement_bitboard = clear_bit(player.settlement_bitboard, index)
+    elseif value == 1
+        player.settlement_bitboard = set_bit(player.settlement_bitboard, index)
+    else
+        throw(ArgumentError("Invalid building type"))
+    end
+end
+
+function is_road(player::PlayerStats, index::Integer)::Bool
+    return player.road_bitboard(index)
+end
+
+function set_road(player::PlayerStats, index::Integer)
+    player.road_bitboard = set_bit(player.road_bitboard, index)
+end
