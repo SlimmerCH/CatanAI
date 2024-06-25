@@ -17,12 +17,12 @@ function display!(board::Board2P)
             <div class='tiles-grid'>
             $(join(["<svg resource='$(board.static.tile_to_resource[i])' class='hex h$i' viewBox='0 0 512 512'>$smooth_hexagon_path</svg>" for i in 1:19], "\n"))
             $(join(["<div number='$(board.static.tile_to_number[i])' class='number-token h$i'>$(board.static.tile_to_number[i])</div>" for i in 1:19 if board.static.tile_to_number[i] != 0], "\n"))
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1'>$house_path</svg>" for i in 1:54 if board.dynamic.p1_bitboard.settlement_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2'>$house_path</svg>" for i in 1:54 if board.dynamic.p2_bitboard.settlement_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1'>$building_path</svg>" for i in 1:54 if board.dynamic.p1_bitboard.city_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2'>$building_path</svg>" for i in 1:54 if board.dynamic.p2_bitboard.city_bitboard(i) ], "\n") )
-            $(join( [ "<div class='road r$i p1'></div>" for i in 1:72 if board.dynamic.p1_bitboard.road_bitboard(i) ], "\n") )
-            $(join( [ "<div class='road r$i p2'></div>" for i in 1:72 if board.dynamic.p2_bitboard.road_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1'>$house_path</svg>" for i in 1:54 if board.dynamic.p1.settlement_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2'>$house_path</svg>" for i in 1:54 if board.dynamic.p2.settlement_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1'>$building_path</svg>" for i in 1:54 if board.dynamic.p1.city_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2'>$building_path</svg>" for i in 1:54 if board.dynamic.p2.city_bitboard(i) ], "\n") )
+            $(join( [ "<div class='road r$i p1'></div>" for i in 1:72 if board.dynamic.p1.road_bitboard(i) ], "\n") )
+            $(join( [ "<div class='road r$i p2'></div>" for i in 1:72 if board.dynamic.p2.road_bitboard(i) ], "\n") )
             </div>
             <div class="footer">$(license)</div>
         </body>

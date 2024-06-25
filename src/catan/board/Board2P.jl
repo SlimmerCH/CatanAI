@@ -32,6 +32,9 @@ end
 
 mutable struct Bank
     bitboard::UInt64
+    function Bank(uint::UInt64)
+        new(uint)
+    end
     function Bank()
         new(UInt64(0x0000002d5d39ce73))
     end

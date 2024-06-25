@@ -7,6 +7,9 @@ function rand(type::Type{PlayerStats})::PlayerStats
     )
 end
 
+function rand(type::Type{Bank})::Bank
+    return Bank(rand(UInt64))
+end
 
 function rand(type::Type{Board2P})::Board2P
     b1 = rand(UInt64) & rand(UInt64) & rand(UInt64) & rand(UInt64)
@@ -20,5 +23,5 @@ function rand(type::Type{Board2P})::Board2P
     p1_bitboard = PlayerStats(b1, b2, s1)
     p2_bitboard = PlayerStats(b3, b4, s2)
 
-    return Board2P(StaticBoard(), DynamicBoard2P(p1_bitboard, p2_bitboard, rand(UInt64)))
+    return Board2P(StaticBoard(), DynamicBoard2P(p1_bitboard, p2_bitboard, rand(Bank)))
 end
