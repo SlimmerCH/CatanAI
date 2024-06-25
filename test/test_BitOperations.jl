@@ -26,10 +26,12 @@ include("../src/catan/board/BitOperations.jl")
 
     @test flip_bit(0b01011, 1) == 0b01010
     @test flip_bit(0b11010, 3) == 0b11110
+    @test flip_bit(0b11010, 4) == 0b10010
 
     @test read_binary_range(0b01011, 1, 3) == 3
     @test read_binary_range(0b01011, 2, 4) == 5
     @test read_binary_range(0b01011, 1, 5) == 11
+    @test read_binary_range(0b111000000000000000000000000000000000000000000000000000000000000, 61, 63) == 0b111
 
     @test write_binary_range(0b01011, 1, 3, 0b101) == 0b01101
     @test write_binary_range(0b01011, 3, 5, 0b101) == 0b10111

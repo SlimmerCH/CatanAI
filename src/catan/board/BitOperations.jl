@@ -16,12 +16,12 @@ function write_bit(uInt::Unsigned, position::Integer, value::Bool)::Unsigned
     end
 end
 
-function check_bit(uInt::Unsigned, position::Integer)::Bool
-    return (uInt >> (position-1)) & UInt8(1) == UInt8(1)
+function check_bit(uInt::UIntT, position::Integer)::Bool where {UIntT <: Unsigned}
+    return (uInt >> (position-1)) & UIntT(1) == UIntT(1)
 end
 
-function flip_bit(uInt::Unsigned, position::Integer)::Unsigned
-    return uInt ⊻ (UInt8(1) << (position-1))
+function flip_bit(uInt::UIntT, position::Integer)::Unsigned where {UIntT <: Unsigned}
+    return uInt ⊻ (UIntT(1) << (position-1))
 end
 
 function (uInt::Unsigned)(position::Integer)::Bool
@@ -51,7 +51,7 @@ function read_binary_range(uInt::UIntT, pos1::Integer, pos2::Integer)::UInt wher
     return result
 end
 
-function write_binary_range(uInt::UIntT, pos1::Int, pos2::Int, value::UIntT)::UIntT where {UIntT <: Unsigned}
+function write_binary_range(uInt::UIntT, pos1::Integer, pos2::Integer, value::Integer)::UIntT where {UIntT <: Unsigned}
 
     # Validate input. Remove later for performance
     if pos1 < 1 || pos2 < 1 || pos1 > sizeof(UIntT) * 8 || pos2 > sizeof(UIntT) * 8

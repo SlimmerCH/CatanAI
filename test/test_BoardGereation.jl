@@ -2,7 +2,6 @@ using Test
 
 include("../src/catan/board/CatanBoard.jl")
 using .CatanBoard
-using Base: summarysize
 
 @testset "Board Generation" begin
     for i in 1:20 @test CatanBoard.random_starting_index() ∈ [1,3,5,7,9,11] end
@@ -19,5 +18,6 @@ using Base: summarysize
     @test Board2P() isa Board2P
 
     ranboard = rand(Board2P)
+    flip_player_turn(ranboard.dynamic)
     @test 0b0 == ranboard.dynamic.p1_bitboard.settlement_bitboard & ranboard.dynamic.p1_bitboard.city_bitboard & ranboard.dynamic.p2_bitboard.settlement_bitboard & ranboard.dynamic.p2_bitboard.city_bitboard
 end
