@@ -15,4 +15,3 @@ module CatanBoard
 
     Board2P()
 end
-
