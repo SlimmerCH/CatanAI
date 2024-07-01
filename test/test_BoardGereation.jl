@@ -1,8 +1,5 @@
 using Test
 
-include("../src/catan/board/CatanBoard.jl")
-using .CatanBoard
-
 @testset "Board Generation" begin
     tile_to_resource = CatanBoard.generate_tile_to_resource_lookup()
     tile_to_number = CatanBoard.generate_tile_to_number_lookup(tile_to_resource)
