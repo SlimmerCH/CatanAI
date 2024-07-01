@@ -19,5 +19,5 @@ using .CatanBoard
 
     ranboard = rand(Board2P)
     flip_player_turn(ranboard.dynamic)
-    @test 0b0 == ranboard.dynamic.p1_bitboard.settlement_bitboard & ranboard.dynamic.p1_bitboard.city_bitboard & ranboard.dynamic.p2_bitboard.settlement_bitboard & ranboard.dynamic.p2_bitboard.city_bitboard
+    @test 0b0 == ranboard.dynamic.p1.settlement_bitboard & ranboard.dynamic.p1.city_bitboard & ranboard.dynamic.p2.settlement_bitboard & ranboard.dynamic.p2.city_bitboard
 end
