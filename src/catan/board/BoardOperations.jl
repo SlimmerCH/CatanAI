@@ -174,3 +174,11 @@ end
 function set_road(player::PlayerStats, index::Integer)
     player.road_bitboard = set_bit(player.road_bitboard, index)
 end
+
+function activate_port(player::PlayerStats, resource::Integer)
+    player.settlement_bitboard = set_bit(player.settlement_bitboard, 55 + resource)
+end
+
+function get_port(player::PlayerStats, resource::Integer)::Bool
+    return check_bit(player.settlement_bitboard, 55 + resource)
+end

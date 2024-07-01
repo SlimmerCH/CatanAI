@@ -5,6 +5,7 @@ module CatanBoard
     export get_resource, set_resource, add_resource
     export can_afford, get_card, set_card, add_card
     export get_building, set_building, is_road, set_road
+    export activate_port, get_port
 
     include("Board2P.jl")
     include("RandomBoard.jl")

@@ -1,11 +1,11 @@
 # In julia, indexing starts at 1, so we need to subtract 1 from the position when shifting bits.
 
-function set_bit(uInt::Unsigned, position::Integer)::Unsigned
-    return uInt | (UInt8(1) << (position-1))
+function set_bit(uInt::UIntT, position::Integer)::Unsigned where {UIntT <: Unsigned}
+    return uInt | (UIntT(1) << (position-1))
 end
 
-function clear_bit(uInt::Unsigned, position::Integer)::Unsigned
-    return uInt & ~(UInt8(1) << (position-1))
+function clear_bit(uInt::UIntT, position::Integer)::Unsigned where {UIntT <: Unsigned}
+    return uInt & ~(UIntT(1) << (position-1))
 end
 
 function write_bit(uInt::Unsigned, position::Integer, value::Bool)::Unsigned

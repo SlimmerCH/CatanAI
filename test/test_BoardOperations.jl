@@ -30,6 +30,13 @@ using Base: summarysize
     @test get_card(d.bank, 3) == 2
     @test get_card(d.bank, 4) == 2
     @test get_card(d.bank, 5) == 5
+
+    @test get_port(d.p1, 1) == false
+    @test get_port(d.p1, 2) == false
+    @test get_port(d.p1, 3) == false
+    @test get_port(d.p1, 4) == false
+    @test get_port(d.p1, 5) == false
+    @test get_port(d.p1, 6) == false
     
 
     set_resource(d.p1, 1, 1)
@@ -42,6 +49,9 @@ using Base: summarysize
     set_card(d.p1, 3, 2)
     set_card(d.p1, 4, 0)
     set_card(d.p1, 5, 4)
+    activate_port(d.p1, 1)
+    activate_port(d.p1, 5)
+    activate_port(d.p1, 6)
 
     @test get_resource(d.p1, 1) == 1
     @test get_resource(d.p1, 2) == 2
@@ -53,6 +63,13 @@ using Base: summarysize
     @test get_card(d.p1, 3) == 2
     @test get_card(d.p1, 4) == 0
     @test get_card(d.p1, 5) == 4
+    @test get_port(d.p1, 1) == true
+    @test get_port(d.p1, 2) == false
+    @test get_port(d.p1, 3) == false
+    @test get_port(d.p1, 4) == false
+    @test get_port(d.p1, 5) == true
+    @test get_port(d.p1, 6) == true
+    @test get_player_turn(d) == true
 
     set_resource(d.bank, 1, 1)
     set_resource(d.bank, 2, 2)
