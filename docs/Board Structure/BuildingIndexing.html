@@ -1,0 +1,488 @@
+
+<!-- saved from url=(0022)http://127.0.0.1:8080/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <style>
+    :root {
+        --r1: calc(var(--r2) * 2/sqrt(3));
+        --r2: 10%;
+        --gap:1.5%;
+        --smgap: calc(sqrt(3)/2*var(--gap));
+        --p1-color: #2a88bc;
+        --p2-color: #d9300d;
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100vh;
+        justify-content: bottom;
+        margin: 0;
+    }
+    .tiles-grid {
+        position: relative;
+        margin: auto;
+        height: 80vmin;
+        width: 80vmin;
+    }
+    .hex {
+        position: absolute;
+        height: calc( 2* var(--r1));
+        width: calc( 2* var(--r1));
+        transform: translate(-50%, -50%);
+        fill: #e9e9e9 !important;
+        stroke: #000;
+        stroke-width: 2%;
+    }
+
+    .h1{
+        top: calc(50% - 3*var(--r1) - 2*var(--smgap));
+        left: calc(50% - 2*var(--r2) - var(--gap))
+    }
+    .h2{
+        top: calc(50% - 3*var(--r1) - 2*var(--smgap));
+        left: 50%
+    }
+    .h3{
+        top: calc(50% - 3*var(--r1) - 2*var(--smgap));
+        left: calc(50% + 2*var(--r2) + var(--gap))
+    }
+    .h4{
+        top: calc(50% - 3*var(--r1)/2 - var(--smgap));
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2)
+    }
+    .h5{
+        top: calc(50% - 3*var(--r1)/2 - var(--smgap));
+        left: calc(50% - var(--r2) - var(--gap)/2)
+    }
+    .h6{
+        top: calc(50% - 3*var(--r1)/2 - var(--smgap));
+        left: calc(50% + var(--r2) + var(--gap)/2)
+    }
+    .h7{
+        top: calc(50% - 3*var(--r1)/2 - var(--smgap));
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2)
+    }
+    .h8{
+        top: 50%;
+        left: calc(50% - 4*var(--r2) - 2*var(--gap))
+    }
+    .h9{
+        top: 50%;
+        left: calc(50% - 2*var(--r2) - var(--gap))
+    }
+    .h10{
+        top: 50%;
+        left: 50%;
+    }
+    .h11{
+        top: 50%;
+        left: calc(50% + 2*var(--r2) + var(--gap))
+    }
+    .h12{
+        top: 50%;
+        left: calc(50% + 4*var(--r2) + var(--gap)*2)
+    }
+    .h13{
+        top: calc(50% + 3*var(--r1)/2 + var(--smgap));
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2)
+    }
+    .h14{
+        top: calc(50% + 3*var(--r1)/2 + var(--smgap));
+        left: calc(50% - var(--r2) - var(--gap)/2)
+    }
+    .h15{
+        top: calc(50% + 3*var(--r1)/2 + var(--smgap));
+        left: calc(50% + var(--r2) + var(--gap)/2)
+    }
+    .h16{
+        top: calc(50% + 3*var(--r1)/2 + var(--smgap));
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2)
+    }
+    .h17{
+        top: calc(50% + 3*var(--r1) + 2*var(--smgap));
+        left: calc(50% - 2*var(--r2) - var(--gap))
+    }
+    .h18{
+        top: calc(50% + 3*var(--r1) + 2*var(--smgap));
+        left: 50%
+    }
+    .h19{
+        top: calc(50% + 3*var(--r1) + 2*var(--smgap));
+        left: calc(50% + 2*var(--r2) + var(--gap))
+    }
+    .number-token {
+        pointer-events: none;
+        position: absolute;
+        display: flex;
+        font-size: 4vmin;
+        transform: translate(-50%, -50%);
+        border-radius: 29%;
+        height: 6%;
+        width: 8%;
+        background-color: #f7f7f7;
+        justify-content: center;
+        align-items: center;
+        padding-bottom: 1.2%;
+        box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    }
+    
+    .building {
+        position: absolute;
+        z-index: 1;
+        height: 20px;
+        text-align: center;
+        width: 20px;
+        transform: translate(-50%, -50%);
+        padding: 1.2%;
+        border-radius: 50%;
+        border: #000 solid;
+        border-width: 0.4vmin;
+        background: #fff;
+        font-weight: bold;
+    }
+    .building.p1 {
+        background-color: var(--p1-color);
+    }
+    .building.p2 {
+        background-color: var(--p2-color);
+    }
+
+    .n2 {
+        top: calc(50% - 8*var(--r1)/2 - 2*var(--smgap));
+        left: calc(50% - 2*var(--r2) - 2*var(--gap)/2);
+    }
+    .n4 {
+        top: calc(50% - 8*var(--r1)/2 - 2*var(--smgap));
+        left: calc(50%);
+    }
+    .n6 {
+        top: calc(50% - 8*var(--r1)/2 - 2*var(--smgap));
+        left: calc(50% + 2*var(--r2) + 2*var(--gap)/2);
+    }
+
+    .n1, .r1 {
+        top: calc(50% - 7*var(--r1)/2 - 2*var(--smgap));
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2);
+    }
+    .n3, .r2, .r3 {
+        top: calc(50% - 7*var(--r1)/2 - 2*var(--smgap));
+        left: calc(50% - var(--r2) - var(--gap)/2);
+    }
+    .n5, .r4,.r5 {
+        top: calc(50% - 7*var(--r1)/2 - 2*var(--smgap));
+        left: calc(50% + var(--r2) + var(--gap)/2);
+    }
+    .n7, .r6 {
+        top: calc(50% - 7*var(--r1)/2 - 2*var(--smgap));
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2);
+    }
+
+    .n9, .r7 {
+        top: calc(50% - 5*var(--r1)/2 - 3*var(--smgap)/2);
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2);
+    }
+    .n11, .r8 {
+        top: calc(50% - 5*var(--r1)/2 - 3*var(--smgap)/2);
+        left: calc(50% - var(--r2) - var(--gap)/2);
+    }
+    .n15, .r9 {
+        top: calc(50% - 5*var(--r1)/2 - 3*var(--smgap)/2);
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2);
+    }
+    .n13, .r10 {
+        top: calc(50% - 5*var(--r1)/2 - 3*var(--smgap)/2);
+        left: calc(50% + var(--r2) + var(--gap)/2);
+    }
+    
+    .n8, .r11 {
+        top: calc(50% - 4*var(--r1)/2 - 3*var(--smgap)/2);
+        left: calc(50% - 4*var(--r2) - 4*var(--gap)/2);
+    }
+    .n10, .r12, .r13 {
+        top: calc(50% - 4*var(--r1)/2 - 3*var(--smgap)/2);
+        left: calc(50% - 2*var(--r2) - 2*var(--gap)/2);
+    }
+    .n12, .r14, .r15{
+        top: calc(50% - 4*var(--r1)/2 - 3*var(--smgap)/2);
+        left: calc(50%);
+    }
+    .n14, .r16, .r17 {
+        top: calc(50% - 4*var(--r1)/2 - 3*var(--smgap)/2);
+        left: calc(50% + 2*var(--r2) + 2*var(--gap)/2);
+    }
+    .n16, .r18 {
+        top: calc(50% - 4*var(--r1)/2 - 3*var(--smgap)/2);
+        left: calc(50% + 4*var(--r2) + 4*var(--gap)/2);
+    }
+
+    .n18, .r19 {
+        top: calc(50% - 2*var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% - 4*var(--r2) - 4*var(--gap)/2);
+    }
+    .n20, .r20 {
+        top: calc(50% - 2*var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% - 2*var(--r2) - 2*var(--gap)/2);
+    }
+    .n22, .r21 {
+        top: calc(50% - 2*var(--r1)/2 - var(--smgap)/2);
+        left: calc(50%);
+    }
+    .n24, .r22 {
+        top: calc(50% - 2*var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% + 2*var(--r2) + 2*var(--gap)/2);
+    }
+    .n26, .r23 {
+        top: calc(50% - 2*var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% + 4*var(--r2) + 4*var(--gap)/2);
+    }
+
+    .n17, .r24 {
+        top: calc(50% - var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% - 5*var(--r2) - 5*var(--gap)/2);
+    }
+    .n19, .r25, .r26{
+        top: calc(50% - var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2);
+    }
+    .n21, .r27, .r28 {
+        top: calc(50% - var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% - var(--r2) - var(--gap)/2);
+    }
+    .n25, .r29, .r30{
+        top: calc(50% - var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2);
+    }
+    .n23, .r31, .r32 {
+        top: calc(50% - var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% + var(--r2) + var(--gap)/2);
+    }
+    .n27, .r33 {
+        top: calc(50% - var(--r1)/2 - var(--smgap)/2);
+        left: calc(50% + 5*var(--r2) + 5*var(--gap)/2);
+    }
+
+    /* Flip */
+
+    .n49, .r67, .r68 {
+        top: calc(50% + 8*var(--r1)/2 + 2*var(--smgap));
+        left: calc(50% - 2*var(--r2) - 2*var(--gap)/2);
+    }
+    .n51, .r69, .r70{
+        top: calc(50% + 8*var(--r1)/2 + 2*var(--smgap));
+        left: calc(50%);
+    }
+    .n53, .r71, .r72 {
+        top: calc(50% + 8*var(--r1)/2 + 2*var(--smgap));
+        left: calc(50% + 2*var(--r2) + 2*var(--gap)/2);
+    }
+
+    .n48, .r63 {
+        top: calc(50% + 7*var(--r1)/2 + 2*var(--smgap));
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2);
+    }
+    .n50, .r64 {
+        top: calc(50% + 7*var(--r1)/2 + 2*var(--smgap));
+        left: calc(50% - var(--r2) - var(--gap)/2);
+    }
+    .n52, .r65 {
+        top: calc(50% + 7*var(--r1)/2 + 2*var(--smgap));
+        left: calc(50% + var(--r2) + var(--gap)/2);
+    }
+    .n54, .r66 {
+        top: calc(50% + 7*var(--r1)/2 + 2*var(--smgap));
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2);
+    }
+
+    .n40, .r55, .r56 {
+        top: calc(50% + 5*var(--r1)/2 + 3*var(--smgap)/2);
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2);
+    }
+    .n42, .r57, .r58 {
+        top: calc(50% + 5*var(--r1)/2 + 3*var(--smgap)/2);
+        left: calc(50% - var(--r2) - var(--gap)/2);
+    }
+    .n46, .r59, .r60 {
+        top: calc(50% + 5*var(--r1)/2 + 3*var(--smgap)/2);
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2);
+    }
+    .n44, .r61, .r62 {
+        top: calc(50% + 5*var(--r1)/2 + 3*var(--smgap)/2);
+        left: calc(50% + var(--r2) + var(--gap)/2);
+    }
+    
+    .n39, .r50 {
+        top: calc(50% + 4*var(--r1)/2 + 3*var(--smgap)/2);
+        left: calc(50% - 4*var(--r2) - 4*var(--gap)/2);
+    }
+    .n41, .r51 {
+        top: calc(50% + 4*var(--r1)/2 + 3*var(--smgap)/2);
+        left: calc(50% - 2*var(--r2) - 2*var(--gap)/2);
+    }
+    .n43, .r52 {
+        top: calc(50% + 4*var(--r1)/2 + 3*var(--smgap)/2);
+        left: calc(50%);
+    }
+    .n45, .r53 {
+        top: calc(50% + 4*var(--r1)/2 + 3*var(--smgap)/2);
+        left: calc(50% + 2*var(--r2) + 2*var(--gap)/2);
+    }
+    .n47, .r54 {
+        top: calc(50% + 4*var(--r1)/2 + 3*var(--smgap)/2);
+        left: calc(50% + 4*var(--r2) + 4*var(--gap)/2);
+    }
+
+    .n29, .r40, .r41 {
+        top: calc(50% + 2*var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% - 4*var(--r2) - 4*var(--gap)/2);
+    }
+    .n31, .r42, .r43 {
+        top: calc(50% + 2*var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% - 2*var(--r2) - 2*var(--gap)/2);
+    }
+    .n33, .r44, .r45{
+        top: calc(50% + 2*var(--r1)/2 + var(--smgap)/2);
+        left: calc(50%);
+    }
+    .n35, .r46, .r47 {
+        top: calc(50% + 2*var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% + 2*var(--r2) + 2*var(--gap)/2);
+    }
+    .n37 , .r48, .r49{
+        top: calc(50% + 2*var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% + 4*var(--r2) + 4*var(--gap)/2);
+    }
+
+    .n28, .r34 {
+        top: calc(50% + var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% - 5*var(--r2) - 5*var(--gap)/2);
+    }
+    .n30, .r35 {
+        top: calc(50% + var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% - 3*var(--r2) - 3*var(--gap)/2);
+    }
+    .n32, .r36 {
+        top: calc(50% + var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% - var(--r2) - var(--gap)/2);
+    }
+    .n36, .r37 {
+        top: calc(50% + var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% + 3*var(--r2) + 3*var(--gap)/2);
+    }
+    .n34, .r38 {
+        top: calc(50% + var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% + var(--r2) + var(--gap)/2);
+    }
+    .n38, .r39 {
+        top: calc(50% + var(--r1)/2 + var(--smgap)/2);
+        left: calc(50% + 5*var(--r2) + 5*var(--gap)/2);
+    }
+    .footer {
+        font-family: sans-serif;
+        display: flex;
+        width: 100vw;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        background-color: #fff;
+        font-size: 1.5vmin;
+        height: 7%;
+        width: 100vw;
+    }
+    a {
+        color: #5967d8;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline !important;
+    }
+    .ic {
+        height: 1.3vmin;
+        translate: 0 10%;
+        padding: 0.06vmin;
+    }
+    .ic1 {
+        padding-left: 0.6vmin;
+    }
+    </style>
+    </head>
+    <body>
+        <div class="tiles-grid">
+        <svg resource="2" class="hex h1" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="1" class="hex h2" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="5" class="hex h3" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="1" class="hex h4" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="3" class="hex h5" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="4" class="hex h6" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="2" class="hex h7" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="4" class="hex h8" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="5" class="hex h9" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="5" class="hex h10" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="1" class="hex h11" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="1" class="hex h12" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="3" class="hex h13" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="0" class="hex h14" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="3" class="hex h15" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="4" class="hex h16" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="3" class="hex h17" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="2" class="hex h18" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<svg resource="4" class="hex h19" viewBox="0 0 512 512"><path d="M239.88,9.31L50.42,118.69c-9.97,5.76-16.12,16.4-16.12,27.92v218.77c0,11.52,6.14,22.16,16.12,27.92l189.46,109.39c9.97,5.76,22.26,5.76,32.24,0l189.46-109.39c9.97-5.76,16.12-16.4,16.12-27.92v-218.77c0-11.52-6.14-22.16-16.12-27.92L272.12,9.31c-9.97-5.76-22.26-5.76-32.24,0Z"></path></svg>
+<div viewbox="0 0 64 64" class="building n1">1</div>
+<div viewbox="0 0 64 64" class="building n2">2</div>
+<div viewbox="0 0 64 64" class="building n3">3</div>
+<div viewbox="0 0 64 64" class="building n4">4</div>
+<div viewbox="0 0 64 64" class="building n5">5</div>
+<div viewbox="0 0 64 64" class="building n6">6</div>
+<div viewbox="0 0 64 64" class="building n7">7</div>
+<div viewbox="0 0 64 64" class="building n8">8</div>
+<div viewbox="0 0 64 64" class="building n9">9</div>
+<div viewbox="0 0 64 64" class="building n10">10</div>
+<div viewbox="0 0 64 64" class="building n11">11</div>
+<div viewbox="0 0 64 64" class="building n12">12</div>
+<div viewbox="0 0 64 64" class="building n13">13</div>
+<div viewbox="0 0 64 64" class="building n14">14</div>
+<div viewbox="0 0 64 64" class="building n15">15</div>
+<div viewbox="0 0 64 64" class="building n16">16</div>
+<div viewbox="0 0 64 64" class="building n17">17</div>
+<div viewbox="0 0 64 64" class="building n18">18</div>
+<div viewbox="0 0 64 64" class="building n19">19</div>
+<div viewbox="0 0 64 64" class="building n20">20</div>
+<div viewbox="0 0 64 64" class="building n21">21</div>
+<div viewbox="0 0 64 64" class="building n22">22</div>
+<div viewbox="0 0 64 64" class="building n23">23</div>
+<div viewbox="0 0 64 64" class="building n24">24</div>
+<div viewbox="0 0 64 64" class="building n25">25</div>
+<div viewbox="0 0 64 64" class="building n26">26</div>
+<div viewbox="0 0 64 64" class="building n27">27</div>
+<div viewbox="0 0 64 64" class="building n28">28</div>
+<div viewbox="0 0 64 64" class="building n29">29</div>
+<div viewbox="0 0 64 64" class="building n30">30</div>
+<div viewbox="0 0 64 64" class="building n31">31</div>
+<div viewbox="0 0 64 64" class="building n32">32</div>
+<div viewbox="0 0 64 64" class="building n33">33</div>
+<div viewbox="0 0 64 64" class="building n34">34</div>
+<div viewbox="0 0 64 64" class="building n35">35</div>
+<div viewbox="0 0 64 64" class="building n36">36</div>
+<div viewbox="0 0 64 64" class="building n37">37</div>
+<div viewbox="0 0 64 64" class="building n38">38</div>
+<div viewbox="0 0 64 64" class="building n39">39</div>
+<div viewbox="0 0 64 64" class="building n40">40</div>
+<div viewbox="0 0 64 64" class="building n41">41</div>
+<div viewbox="0 0 64 64" class="building n42">42</div>
+<div viewbox="0 0 64 64" class="building n43">43</div>
+<div viewbox="0 0 64 64" class="building n44">44</div>
+<div viewbox="0 0 64 64" class="building n45">45</div>
+<div viewbox="0 0 64 64" class="building n46">46</div>
+<div viewbox="0 0 64 64" class="building n47">47</div>
+<div viewbox="0 0 64 64" class="building n48">48</div>
+<div viewbox="0 0 64 64" class="building n49">49</div>
+<div viewbox="0 0 64 64" class="building n50">50</div>
+<div viewbox="0 0 64 64" class="building n51">51</div>
+<div viewbox="0 0 64 64" class="building n52">52</div>
+<div viewbox="0 0 64 64" class="building n53">53</div>
+<div viewbox="0 0 64 64" class="building n54">54</div>
+</div>
+<div class="footer"><p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/SlimmerCH/CatanAI">CatanAI.jl</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/SlimmerCH">Selim Bucher</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0<img class="ic ic1" src="./indexing_files/cc.svg" alt=""><img class="ic" src="./indexing_files/by.svg" alt=""><img class="ic" src="./indexing_files/nc.svg" alt=""><img class="ic" src="./indexing_files/sa.svg" alt=""></a></p></div>
+    
+    
+<protonpass-root-a47f data-protonpass-role="root" data-protonpass-theme="os"><template shadowrootmode="closed"></template></protonpass-root-a47f></body></html>

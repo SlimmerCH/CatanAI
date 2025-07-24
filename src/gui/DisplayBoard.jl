@@ -7,7 +7,8 @@ const house_path::String = """<path d="M62.79,29.172l-28-28C34.009,0.391,32.985,
 const building_path::String = """<path d="M56,0H8C5.789,0,4,1.789,4,4v56c0,2.211,1.789,4,4,4h20V48h8v16h20c2.211,0,4-1.789,4-4V4C60,1.789,58.211,0,56,0z M28,40h-8v-8h8V40z M28,24h-8v-8h8V24z M44,40h-8v-8h8V40z M44,24h-8v-8h8V24z"/>"""
 const license::String = """<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/SlimmerCH/CatanAI">CatanAI.jl</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/SlimmerCH">Selim Bucher</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0<img class="ic ic1" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img class="ic" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img class="ic" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1" alt=""><img class="ic" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p>"""
 
-function display!(board::Board2P)
+function display!(board::Board2P; launch_server::Bool=true)
+    LocalServer.board_ref = board  # Set the board reference automatically
     html::String = """
         <html>
         <head>
@@ -15,19 +16,63 @@ function display!(board::Board2P)
         </head>
         <body>
             <div class='tiles-grid'>
-            $(join(["<svg resource='$(board.static.tile_to_resource[i])' class='hex h$i' viewBox='0 0 512 512'>$smooth_hexagon_path</svg>" for i in 1:19], "\n"))
-            $(join(["<div number='$(board.static.tile_to_number[i])' class='number-token h$i'>$(board.static.tile_to_number[i])</div>" for i in 1:19 if board.static.tile_to_number[i] != 0], "\n"))
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1'>$house_path</svg>" for i in 1:54 if board.dynamic.p1.settlement_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2'>$house_path</svg>" for i in 1:54 if board.dynamic.p2.settlement_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1'>$building_path</svg>" for i in 1:54 if board.dynamic.p1.city_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2'>$building_path</svg>" for i in 1:54 if board.dynamic.p2.city_bitboard(i) ], "\n") )
-            $(join( [ "<div class='road r$i p1'></div>" for i in 1:72 if board.dynamic.p1.road_bitboard(i) ], "\n") )
-            $(join( [ "<div class='road r$i p2'></div>" for i in 1:72 if board.dynamic.p2.road_bitboard(i) ], "\n") )
+            $(join(["<svg resource='$(board.static.tile_to_resource[i])' class='hex h$i' viewBox='0 0 512 512' data-hex='$i'>$smooth_hexagon_path</svg>" for i in 1:19], "\n"))
+            $(join(["<div number='$(board.static.tile_to_number[i])' class='number-token h$i' data-number='$i'>$(board.static.tile_to_number[i])</div>" for i in 1:19 if board.static.tile_to_number[i] != 0], "\n"))
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1' data-settlement='1' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if board.dynamic.p1.settlement_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2' data-settlement='2' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if board.dynamic.p2.settlement_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1' data-settlement='1' data-building='1' data-index='$i'>$building_path</svg>" for i in 1:54 if board.dynamic.p1.city_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2' data-settlement='2' data-building='1' data-index='$i'>$building_path</svg>" for i in 1:54 if board.dynamic.p2.city_bitboard(i) ], "\n") )
+            $(join( [ "<div class='road r$i p1' data-road='1' data-index='$i'></div>" for i in 1:72 if board.dynamic.p1.road_bitboard(i) ], "\n") )
+            $(join( [ "<div class='road r$i p2' data-road='2' data-index='$i'></div>" for i in 1:72 if board.dynamic.p2.road_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i neutral' data-settlement='0' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if !board.dynamic.p1.settlement_bitboard(i) && !board.dynamic.p2.settlement_bitboard(i) && !board.dynamic.p1.city_bitboard(i) && !board.dynamic.p2.city_bitboard(i) ], "\n") )
+            $(join( [ "<div class='road r$i neutral' data-road='0' data-index='$i'></div>" for i in 1:72 if !board.dynamic.p1.road_bitboard(i) && !board.dynamic.p2.road_bitboard(i) ], "\n") )
             </div>
             <div class="footer">$(license)</div>
+            <script>
+            // Attach click handlers to board elements
+            document.querySelectorAll('[data-hex],[data-settlement],[data-building],[data-road]').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    let move = null;
+                    if (el.dataset.hex) {
+                        move = {
+                            type: "robber",
+                            target: "hex",
+                            index: parseInt(el.dataset.hex)
+                        };
+                    } else if (el.dataset.settlement || el.dataset.building) {
+                        move = {
+                            type: "buy",
+                            target: "building",
+                            index: parseInt(el.dataset.index)
+                        };
+                    } else if (el.dataset.road) {
+                        move = {
+                            type: "buy",
+                            target: "road",
+                            index: parseInt(el.dataset.index)
+                        };
+                    }
+                    if (move) {
+                        fetch('/move', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify(move)
+                        }).then(resp => resp.text())
+                          .then(msg => {
+                              location.reload();
+                          });
+                    }
+                    e.stopPropagation();
+                });
+            });
+            </script>
         </body>
         </html>
     """
     LocalServer.set_response!(html)
-    return LocalServer.launch()
+    if launch_server
+        return LocalServer.launch()
+    else
+        return html
+    end
 end

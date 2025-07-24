@@ -17,6 +17,9 @@ function write_bit(uInt::Unsigned, position::Integer, value::Bool)::Unsigned
 end
 
 function check_bit(uInt::UIntT, position::Integer)::Bool where {UIntT <: Unsigned}
+    if (position < 1)
+        throw(ArgumentError("Position must be greater than or equal to 1"))
+    end
     return (uInt >> (position-1)) & UIntT(1) == UIntT(1)
 end
 

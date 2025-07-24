@@ -25,3 +25,15 @@ function rand(type::Type{Board2P})::Board2P
 
     return Board2P(StaticBoard(), DynamicBoard2P(p1_bitboard, p2_bitboard, rand(Bank)))
 end
+
+function fullBoard()::Board2P
+
+    zero64::UInt64 = 0x0000000000000000
+    full64::UInt64 = 0xFFFFFFFFFFFFFFFF
+    zero128::UInt128 = 0x00000000000000000000000000000000
+    full128::UInt128 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+
+    p1_bitboard = PlayerStats(full64, zero64, full128)
+    p2_bitboard = PlayerStats(zero64, zero64, zero128)
+    return Board2P(StaticBoard(), DynamicBoard2P(p1_bitboard, p2_bitboard, Bank()))
+end

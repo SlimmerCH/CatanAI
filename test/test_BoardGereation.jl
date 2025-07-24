@@ -1,9 +1,7 @@
 using Test
 
 @testset "Board Generation" begin
-    tile_to_resource = CatanBoard.generate_tile_to_resource_lookup()
-    tile_to_number = CatanBoard.generate_tile_to_number_lookup(tile_to_resource)
-    number_to_tile = CatanBoard.generate_number_to_tile_lookup(tile_to_resource)
+    tile_to_resource, tile_to_number, number_to_tile = CatanBoard.generate_lookups()
 
     for i in 1:20 @test CatanBoard.random_starting_index() ∈ [1,3,5,7,9,11] end
     @test CatanBoard.out_to_inner_ring(1) == 1

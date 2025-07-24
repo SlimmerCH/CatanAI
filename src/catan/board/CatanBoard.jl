@@ -1,10 +1,12 @@
 module CatanBoard
 
-    export Board2P, DynamicBoard2P, display!, rand
-    export get_player_turn, flip_player_turn
+    export Board2P, StaticBoard, DynamicBoard2P, display!, rand, fullBoard
+    export Move, commit, validate
+    export get_player_turn, flip_player_turn, get_next_player
+    export is_road_forced, force_road, clear_force_road
     export get_resource, set_resource, add_resource
     export can_afford, get_card, set_card, add_card
-    export get_building, set_building, is_road, set_road
+    export get_building, set_building, is_buildable, is_road, set_road, is_roadable
     export activate_port, get_port
 
     include("Board2P.jl")
@@ -12,6 +14,7 @@ module CatanBoard
     include("BoardOperations.jl")
     include("BoardGeneration.jl")
     include("../../gui/DisplayBoard.jl")
+    include("../moves/Move.jl") # <-- Ensure Move.jl is included
 
     Board2P()
 end

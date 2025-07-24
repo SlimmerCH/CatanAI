@@ -6,15 +6,30 @@ module LocalServer
     using Base: run
     using HTTP
     using Base.Threads: @spawn
+    using JSON3
+    using ..CatanBoard  # <-- Add this line
 
     global response_html::String = ""
     global server_task = nothing
     global server_running::Bool = false
+    global board_ref = nothing  # Holds the current Board2P object
 
     function handler(req)
-        global response_html
+        global response_html, board_ref
+        if req.target == "/move" && req.method == "POST"
+            move_data = String(req.body)
+            move = JSON3.read(move_data, Dict{String,Any})
+            handle_move(move)
+            # Regenerate HTML after move
+            if board_ref !== nothing
+                response_html = display!(board_ref; launch_server=false)
+            end
+            return HTTP.Response(200, "Move received: " * move_data)
+        end
         return HTTP.Response(200, response_html)
     end
+
+    include("HandleMove.jl")
 
     function launch()
         global server_running, server_task

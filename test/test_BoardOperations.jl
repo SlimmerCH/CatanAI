@@ -90,4 +90,35 @@ using Base: summarysize
     @test get_card(d.bank, 4) == 0
     @test get_card(d.bank, 5) == 4
 
+    for i in 1:54
+        @test is_buildable(d, i) == true
+    end
+
+    set_building(d.p1, 20, 1)
+    set_building(d.p1, 14, 2)
+    set_building(d.p2, 32, 1)
+    set_building(d.p2, 44, 2)
+
+    @test get_building(d.p1, 20) == 1
+    @test get_building(d.p1, 14) == 2
+    @test get_building(d.p2, 32) == 1
+    @test get_building(d.p2, 44) == 2
+
+    invalid = [
+        20,10,19,21,
+        14,13,15,24,
+        32,31,33,21,
+        44,43,45,52
+    ]
+
+    for i in invalid
+        @test is_buildable(d, i) == false
+    end
+
+    for i in 1:54
+        if !(i in invalid)
+            @test is_buildable(d, i) == true
+        end
+    end
+
 end

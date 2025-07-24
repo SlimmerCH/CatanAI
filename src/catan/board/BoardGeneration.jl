@@ -5,6 +5,15 @@ const outer_ring_order = (1, 2, 3, 7, 12, 16, 19, 18, 17, 13, 8, 4)
 const inner_ring_order = (5, 6, 11, 15, 14, 9)
 const center = (10,)
 
+const building_indexes = (
+              0x02,0x03,0x04,0x05,0x06,0x07,0x08,
+         0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,
+    0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2A,
+    0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x3A,
+         0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,
+              0x52,0x53,0x54,0x55,0x56,0x57,0x58
+)
+
 function random_starting_index()::Int8
     return 2 * rand(Int8(0):Int(5)) + Int8(1)
 end
@@ -68,10 +77,7 @@ function loop_trough_ring(ring_order::Tuple, start_index::Integer, clockwise::Bo
     return store_j
 end
 
-function generate_number_to_tile_lookup(tile_to_resource)::NTuple{12, Tuple{Int8, Int8}}
-
-    # Generating the lookups
-    tile_to_number = generate_tile_to_number_lookup(tile_to_resource)
+function generate_number_to_tile_lookup(tile_to_number)::NTuple{12, Tuple{Int8, Int8}}
 
     lookup_array = Array{Tuple{Int8, Int8}}(undef, 12)
     for i in 1:12
@@ -102,6 +108,7 @@ end
 
 function generate_lookups()
     tile_to_resource = generate_tile_to_resource_lookup()
-    number_to_tile = generate_number_to_tile_lookup(tile_to_resource)
-    return number_to_tile, tile_to_resource
+    tile_to_number = generate_tile_to_number_lookup(tile_to_resource)
+    number_to_tile = generate_number_to_tile_lookup(tile_to_number)
+    return tile_to_resource, tile_to_number, number_to_tile
 end

@@ -21,12 +21,15 @@ mutable struct PlayerStats
 end
 
 struct StaticBoard
-    number_to_tile::NTuple{12, Tuple{Int8, Int8}}
     tile_to_resource::NTuple{19, Int8}
+    tile_to_number::NTuple{19, Int8}
+    number_to_tile::NTuple{12, Tuple{Int8, Int8}}
+    
     function StaticBoard()
 
-        number_to_tile, tile_to_resource = generate_lookups()
-        new(number_to_tile, tile_to_resource)
+        tile_to_resource, tile_to_number, number_to_tile = generate_lookups()
+
+        new(tile_to_resource, tile_to_number, number_to_tile)
     end
 end
 
