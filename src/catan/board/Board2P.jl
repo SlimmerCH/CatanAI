@@ -15,8 +15,7 @@ mutable struct PlayerStats
         new(settlement_bitboard, city_bitboard, road_bitboard)
     end
     function PlayerStats(is_p1::Bool=false)
-        sb::UInt64 = ifelse(is_p1, UInt64(0) | (1 << 54), UInt64(0))
-        new(sb, UInt64(0), UInt128(0))
+        new(UInt64(0), UInt64(0), UInt128(0))
     end
 end
 

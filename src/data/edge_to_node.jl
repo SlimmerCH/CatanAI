@@ -1,4 +1,4 @@
-const edge_to_road::NTuple{72, NTuple{2, Int8}} = (
+const edge_to_node::NTuple{72, NTuple{2, Int8}} = (
     (1, 2),
     (2, 3),
     (3, 4),

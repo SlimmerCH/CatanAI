@@ -9,12 +9,86 @@ const license::String = """<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dc
 
 function display!(board::Board2P; launch_server::Bool=true)
     LocalServer.board_ref = board  # Set the board reference automatically
+
+    # Always show p1 as "You", p2 as "Opponent"
+    player = board.dynamic.p1
+    opponent = board.dynamic.p2
+
+    # Resource names and ids
+    resource_names = ["Wood", "Brick", "Sheep", "Wheat", "Ore"]
+    resource_amounts = [get_resource(player, i) for i in 1:5]
+    opponent_resource_amounts = [get_resource(opponent, i) for i in 1:5]
+
+    # Development card names and ids
+    card_names = ["Knight", "Road", "Monopoly", "Plenty"]
+    card_amounts = [get_card(player, i) for i in 1:4]
+    opponent_card_amounts = [get_card(opponent, i) for i in 1:4]
+
+    # Show end move button for current player
+    show_left_btn = !get_player_turn(board.dynamic)
+    show_right_btn = get_player_turn(board.dynamic)
+
+    # Show "Use" button if player has any development cards
+    show_left_use = sum(card_amounts) > 0
+    show_right_use = sum(opponent_card_amounts) > 0
+
+    # Last rolled dice (remove global dice logic)
+    last_dice = "-"
+
+    # Player turn indicator
+    is_p1_turn = !get_player_turn(board.dynamic)
+    turn_color = is_p1_turn ? "#2a88bc" : "#d9300d"
+    turn_text = is_p1_turn ? "Your Turn" : "Opponent's Turn"
+
+    sidebar_html = """
+    <div class="sidebar">
+        <h2>You</h2>
+        <div class="section">
+            <ul class="resource-list">
+                $(join([ "<li><span>$(resource_names[i])</span><span>$(resource_amounts[i])</span></li>" for i in 1:5 ], "\n"))
+            </ul>
+        </div>
+        <h2>Development Cards</h2>
+        <div class="section">
+            <ul class="card-list">
+                $(join([ "<li><span>$(card_names[i])</span><span>$(card_amounts[i])</span></li>" for i in 1:4 ], "\n"))
+            </ul>
+        </div>
+        <button class='dev-card-btn' id='buy-devcard-left'>Buy Development Card</button>
+        $(show_left_use ? "<button class='use-dev-btn' id='use-devcard-left'>Use</button>" : "")
+        $(show_left_btn ? "<button class='end-move-btn' id='end-move-btn-left'>End Move</button>" : "")
+    </div>
+    """
+
+    sidebar_right_html = """
+    <div class="sidebar-right" id="sidebar-right">
+        <button class="toggle-btn" id="toggle-right">&lt;</button>
+        <h2>Opponent</h2>
+        <div class="section">
+            <ul class="resource-list">
+                $(join([ "<li><span>$(resource_names[i])</span><span>$(opponent_resource_amounts[i])</span></li>" for i in 1:5 ], "\n"))
+            </ul>
+        </div>
+        <h2>Development Cards</h2>
+        <div class="section">
+            <ul class="card-list">
+                $(join([ "<li><span>$(card_names[i])</span><span>$(opponent_card_amounts[i])</span></li>" for i in 1:4 ], "\n"))
+            </ul>
+        </div>
+        <button class='dev-card-btn' id='buy-devcard-right'>Buy Development Card</button>
+        $(show_right_use ? "<button class='use-dev-btn' id='use-devcard-right'>Use</button>" : "")
+        $(show_right_btn ? "<button class='end-move-btn' id='end-move-btn-right'>End Move</button>" : "")
+    </div>
+    """
+
     html::String = """
         <html>
         <head>
         $(read(pwd()*"/src/gui/html/style.html", String))
         </head>
         <body>
+            $sidebar_html
+            $sidebar_right_html
             <div class='tiles-grid'>
             $(join(["<svg resource='$(board.static.tile_to_resource[i])' class='hex h$i' viewBox='0 0 512 512' data-hex='$i'>$smooth_hexagon_path</svg>" for i in 1:19], "\n"))
             $(join(["<div number='$(board.static.tile_to_number[i])' class='number-token h$i' data-number='$i'>$(board.static.tile_to_number[i])</div>" for i in 1:19 if board.static.tile_to_number[i] != 0], "\n"))
@@ -27,8 +101,40 @@ function display!(board::Board2P; launch_server::Bool=true)
             $(join( [ "<svg viewBox='0 0 64 64' class='building n$i neutral' data-settlement='0' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if !board.dynamic.p1.settlement_bitboard(i) && !board.dynamic.p2.settlement_bitboard(i) && !board.dynamic.p1.city_bitboard(i) && !board.dynamic.p2.city_bitboard(i) ], "\n") )
             $(join( [ "<div class='road r$i neutral' data-road='0' data-index='$i'></div>" for i in 1:72 if !board.dynamic.p1.road_bitboard(i) && !board.dynamic.p2.road_bitboard(i) ], "\n") )
             </div>
-            <div class="footer">$(license)</div>
+            <div class="footer">
+                <div class="turn-indicator">
+                    <span class="circle" style="background:$turn_color"></span>
+                    <span>$turn_text</span>
+                </div>
+                $(license)
+                <span style="font-size:1.5em; margin-left:2em;">Last Dice: <b id="last-dice">$last_dice</b></span>
+            </div>
             <script>
+            // Sidebar right open/close state using localStorage
+            var sidebarRight = document.getElementById('sidebar-right');
+            var toggleBtn = document.getElementById('toggle-right');
+            function setSidebarState(open) {
+                if (open) {
+                    sidebarRight.classList.remove('hide');
+                    toggleBtn.textContent = '>';
+                } else {
+                    sidebarRight.classList.add('hide');
+                    toggleBtn.textContent = '<';
+                }
+                localStorage.setItem('sidebarRightOpen', open ? '1' : '0');
+            }
+            // On load, restore sidebar state
+            (function() {
+                var open = localStorage.getItem('sidebarRightOpen');
+                setSidebarState(open !== '0');
+            })();
+            if (toggleBtn && sidebarRight) {
+                toggleBtn.addEventListener('click', function(e) {
+                    var open = sidebarRight.classList.contains('hide');
+                    setSidebarState(open);
+                    e.stopPropagation();
+                });
+            }
             // Attach click handlers to board elements
             document.querySelectorAll('[data-hex],[data-settlement],[data-building],[data-road]').forEach(el => {
                 el.addEventListener('click', function(e) {
@@ -65,6 +171,81 @@ function display!(board::Board2P; launch_server::Bool=true)
                     e.stopPropagation();
                 });
             });
+            // End Move button handlers
+            var btnLeft = document.getElementById('end-move-btn-left');
+            if (btnLeft) {
+                btnLeft.addEventListener('click', function(e) {
+                    fetch('/move', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({type: "end"})
+                    }).then(resp => resp.text())
+                      .then(msg => {
+                          location.reload();
+                      });
+                    e.stopPropagation();
+                });
+            }
+            var btnRight = document.getElementById('end-move-btn-right');
+            if (btnRight) {
+                btnRight.addEventListener('click', function(e) {
+                    fetch('/move', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({type: "end"})
+                    }).then(resp => resp.text())
+                      .then(msg => {
+                          location.reload();
+                      });
+                    e.stopPropagation();
+                });
+            }
+            // Buy Development Card buttons
+            var buyDevLeft = document.getElementById('buy-devcard-left');
+            if (buyDevLeft) {
+                buyDevLeft.addEventListener('click', function(e) {
+                    fetch('/move', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({type: "buy_devcard", player: 1})
+                    });
+                    e.stopPropagation();
+                });
+            }
+            var buyDevRight = document.getElementById('buy-devcard-right');
+            if (buyDevRight) {
+                buyDevRight.addEventListener('click', function(e) {
+                    fetch('/move', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({type: "buy_devcard", player: 2})
+                    });
+                    e.stopPropagation();
+                });
+            }
+            // Use Development Card buttons
+            var useDevLeft = document.getElementById('use-devcard-left');
+            if (useDevLeft) {
+                useDevLeft.addEventListener('click', function(e) {
+                    fetch('/move', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({type: "use_devcard", player: 1})
+                    });
+                    e.stopPropagation();
+                });
+            }
+            var useDevRight = document.getElementById('use-devcard-right');
+            if (useDevRight) {
+                useDevRight.addEventListener('click', function(e) {
+                    fetch('/move', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({type: "use_devcard", player: 2})
+                    });
+                    e.stopPropagation();
+                });
+            }
             </script>
         </body>
         </html>

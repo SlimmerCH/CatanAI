@@ -1,11 +1,12 @@
 include("../../data/building_adjacency.jl")
+include("../../data/road_adjacency.jl")
 include("../../data/edge_to_node.jl")
 include("../../data/node_to_tile.jl")
 include("../../data/tile_to_node.jl")
 
 # Precompute node_to_edge mapping
 node_edges = [Int8[] for _ in 1:54]
-for (road_idx, (u, v)) in enumerate(edge_to_road)
+for (road_idx, (u, v)) in enumerate(edge_to_node)
     push!(node_edges[u], road_idx)
     push!(node_edges[v], road_idx)
 end

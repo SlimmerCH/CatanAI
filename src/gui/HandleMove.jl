@@ -2,28 +2,43 @@ using ..CatanBoard
 
 function handle_move(move)
     global board_ref
-    @show move
     player = CatanBoard.get_next_player(board_ref.dynamic)
+
+    println("")
+    println("Handling move : $(move)")
+    println("")
+
+    force_end = false
 
     # Example: handle buy move
     if move["type"] == "buy"
-        target = 0b00  # Default target for road
         if move["target"] == "road"
-            # target = 0b00
+            purchase = move["index"]
         elseif move["target"] == "building"
-            if player.settlement_bitboard(move["index"])
-                target = 0b10 # upgrade to city
-            else
-                target = 0b01 # build settlement
-            end
+            purchase = 0b10000000 | move["index"]
         else
             error("Unknown target for buy move: $(move["target"])")
         end
-        move_obj = CatanBoard.Move([], UInt8[UInt8(target << 6 | move["index"])])
+        move_obj = CatanBoard.Move([], UInt8[purchase])
+
+        @show move_obj
+
         if !CatanBoard.validate(board_ref, move_obj)
-            @warn "Invalid move: $(move_obj)"
             return
         end
-        CatanBoard.commit(board_ref, move_obj)
+        if move["target"] == "road" && !CatanBoard.initial_phase_ended(player)
+            force_end = true
+        end
+
+        CatanBoard.commit(board_ref, move_obj, force_end)
+    end
+
+    if move["type"] == "end" && CatanBoard.validate(board_ref, Move())
+        CatanBoard.commit(board_ref, Move(), true)
+    end
+
+    if initial_phase_ended(get_next_player(board_ref.dynamic))
+        dice = random_dice()
+        roll_dice(dice, board_ref.static, board_ref.dynamic)
     end
 end

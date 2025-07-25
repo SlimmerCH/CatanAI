@@ -1,11 +1,11 @@
 include("../src/catan/board/CatanBoard.jl")
 using .CatanBoard
 
-showFull = false
+showRandom = false
 
 
-if showFull
-    board = fullBoard()
+if !showRandom
+    board = Board2P()
 else
     board = rand(Board2P)
 end

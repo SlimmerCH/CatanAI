@@ -21,8 +21,15 @@ const max_value::NTuple{6, Int8} = (
 
 const building_bitboard_mask::UInt64 = 
 0b00000000111111111111111111111111111111111111111111111111111111
+
+const road_bitboard_mask::UInt128 = 
+0b00000000000000000000000000000000000000000000000000000000111111111111111111111111111111111111111111111111111111111111111111111111
+
 if building_bitboard_mask |> count_ones != 54
     throw(ArgumentError("Invalid building bitboard mask"))
+end
+if road_bitboard_mask |> count_ones != 72
+    throw(ArgumentError("Invalid road bitboard mask"))
 end
 
 # resource ids
@@ -45,7 +52,27 @@ function clear_force_road(player::PlayerStats)
     player.settlement_bitboard = clear_bit(player.settlement_bitboard, starting_index[4])
 end
 
+function building_has_road(player::PlayerStats, building_index::UInt8)::Bool
+    adjacency::NTuple{54, NTuple{3, Int8}} = node_to_edge
+    neighbors::NTuple{3, Int8} = adjacency[building_index]
+    return (
+        player.road_bitboard(neighbors[1]) ||
+        player.road_bitboard(neighbors[2]) ||
+        (neighbors[3] != 0 && player.road_bitboard(neighbors[3]))
+    )
+end
 
+function get_settlement_of_road(player::PlayerStats, road_index::UInt8)::UInt8
+    adjacency::NTuple{72, NTuple{2, Int8}} = edge_to_node
+    neighbors::NTuple{2, Int8} = adjacency[road_index]
+    if player.settlement_bitboard(neighbors[1])
+        return neighbors[1]
+    elseif player.settlement_bitboard(neighbors[2])
+        return neighbors[2]
+    else
+        return 0 # No building at this road
+    end
+end
 
 function get_bit_usage(max_value::Integer)
     return ceil(log2(max_value+1))
@@ -111,17 +138,10 @@ function set_resource(bank::Bank, resource::Integer, value::Integer)
     # println("Range: ", index, " to ", index + bit_usage[1] - 1, " - Resource: ", resource)
 end
 
-
-function add_resource(player::PlayerStats, resource_type::Integer, value::Integer)
+function add_resource(player::PlayerStats, bank::Bank, resource_type::Integer, value::Integer)
     current::Int8 = get_resource(player, resource_type)
-    return set_resouce(player, resource_type, current + value)
+    return set_resource(player, resource_type, current + value)
 end
-
-function add_resource(bank::Bank, resource_type::Integer, value::Integer)
-    current::Int8 = get_resource(bank, resource_type)
-    return set_resouce(bank, resource_type, current + value)
-end
-
 
 function can_afford(player::PlayerStats, resource_type::Integer, value::Integer)::Bool
     return get_resource(player, resource_type) >= value
@@ -129,6 +149,30 @@ end
 
 function can_afford(bank::Bank, resource_type::Integer, value::Integer)::Bool
     return get_resource(bank, resource_type) >= value
+end
+
+function spend_resource(player::PlayerStats, bank::Bank, building_id::Integer)
+    if !initial_phase_ended(player)
+        return # no resources to spend in the initial phase
+    end
+    if building_id == 1 # road
+        add_resource(player, bank, 1, -1) # wood
+        add_resource(player, bank, 2, -1) # brick
+    elseif building_id == 2 # settlement
+        add_resource(player, bank, 1, -1) # wood
+        add_resource(player, bank, 2, -1) # brick
+        add_resource(player, bank, 3, -1) # sheep
+        add_resource(player, bank, 4, -1) # wheat
+    elseif building_id == 3 # city
+        add_resource(player, bank, 4, -2) # wheat
+        add_resource(player, bank, 5, -3) # ore
+    elseif building_id == 4 # development_card
+        add_resource(player, bank, 3, -1) # sheep
+        add_resource(player, bank, 4, -1) # wheat
+        add_resource(player, bank, 5, -1) # ore
+    else
+        throw(ArgumentError("Invalid building ID"))
+    end
 end
 
 function can_afford(player::PlayerStats, purchaseID::Integer)::Bool
@@ -273,14 +317,23 @@ function is_roadable(dynamicboard::DynamicBoard2P, player::PlayerStats, index::I
     neighbors::NTuple{4, Int8} = adjacency[index];
     
     if (
-        globalBitboard(neighbors[1]) == 0 &&
-        globalBitboard(neighbors[2]) == 0 &&
-        ((neighbors[3] == 0) || globalBitboard(neighbors[3]) == 0 ) &&
-        ((neighbors[4] == 0) || globalBitboard(neighbors[4]) == 0 )
+        player.road_bitboard(neighbors[1]) == 0 &&
+        player.road_bitboard(neighbors[2]) == 0 &&
+        ((neighbors[3] == 0) || player.road_bitboard(neighbors[3]) == 0 ) &&
+        ((neighbors[4] == 0) || player.road_bitboard(neighbors[4]) == 0 )
     )
-        return true
+        return false
     end
-    return false
+    return true
+end
+
+function road_has_settlement(player::PlayerStats, road_index::UInt8)::Bool
+    adjacency::NTuple{72, NTuple{2, Int8}} = edge_to_node
+    neighbors::NTuple{2, Int8} = adjacency[road_index]
+    return (
+        player.settlement_bitboard(neighbors[1]) ||
+        player.settlement_bitboard(neighbors[2])
+    )
 end
 
 function is_road(player::PlayerStats, index::Integer)::Bool
@@ -307,11 +360,14 @@ function count_cities(player::PlayerStats)::Int8
     return count_ones(player.city_bitboard & building_bitboard_mask)
 end
 
-function initial_phase_ended(player::PlayerStats)::Bool
-    return check_bit(player.settlement_bitboard, starting_index[2])
+function count_roads(player::PlayerStats)::Int8
+    return count_ones(player.road_bitboard & road_bitboard_mask)
 end
 
-function end_initial_phase(dynamicboard::DynamicBoard2P)
-    dynamicboard.p1.settlement_bitboard = set_bit(dynamicboard.p1.settlement_bitboard, starting_index[2])
-    dynamicboard.p2.settlement_bitboard = set_bit(dynamicboard.p2.settlement_bitboard, starting_index[2])
+function initial_phase_ended(player::PlayerStats)::Bool
+    return check_bit(player.settlement_bitboard, starting_index[3])
+end
+
+function end_initial_phase(player::PlayerStats)
+    player.settlement_bitboard = set_bit(player.settlement_bitboard, starting_index[3])
 end
