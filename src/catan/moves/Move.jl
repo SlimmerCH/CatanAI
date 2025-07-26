@@ -1,5 +1,7 @@
 struct Move
-    trade::Vector{} #
+    
+    # AA0YY YXXX trade amount (A) of resource type (X) with the bank for 1 resource of type (Y) 
+    trade::Vector{UInt8} #
 
     # (0XXX XXXX) road with id X
     # (10XX XXXX) building with id X
@@ -9,26 +11,43 @@ struct Move
     # (0001 XXXX) knight card with tile id X
     # (0010 0XXX) monopoly card with resource id X
     # (01YY YXXX) plenty card with resource ids X and Y
-    # (1XXX XXXX) road card with road ids X
-    play::Vector{UInt8}
+    # (1000 0000) the first two items in "buy" are roads and are free.
+    play::UInt8
 
-    function Move(trade::Vector{} = [], buy::Vector{UInt8} = UInt8[], play::Vector{UInt8} = UInt8[])
+    function Move(trade::Vector{UInt8} = UInt8[], buy::Vector{UInt8} = UInt8[], play::UInt8 = UInt8(0))
         new(trade, buy, play)
     end
 end
 
-function upgrade_building(player::PlayerStats, bank::Bank, index::UInt8)
+function upgrade_building(player::PlayerStats, index::UInt8)
     println("Upgrading building at index: $(index)")
     # build a settlement
     if get_building(player, index) == 0
         set_building(player, index, 1) # 1 for settlement
-        spend_resource(player, bank, 2) # spend resource for settlement
+        buy(player, 2) # spend resource for settlement
     elseif get_building(player, index) == 1
         set_building(player, index, 2) # 2 for city
-        spend_resource(player, bank, 3) # spend resource for city
+        buy(player, 3) # spend resource for city
     else
         error("Cannot upgrade building at index $(index): No settlement found.")
     end
+end
+
+function devcard_distribution(bank::Bank)::NTuple{5, Int8}
+    buy(player, 4) # spend resources for development card
+    card_stock::Vector{Int8} = [
+        get_card_amount(bank, 6),
+        get_card_amount(bank, 7),
+        get_card_amount(bank, 8),
+        get_card_amount(bank, 9),
+        get_card_amount(bank, 10)
+    ]
+
+    total_stock::Int8 = sum(card_stock)
+
+    for i::Int8 in 1:5
+    end
+
 end
 
 function random_dice()::Int8
@@ -55,13 +74,13 @@ function roll_dice(num::Int8, static::StaticBoard, dynamic::DynamicBoard2P)
     for building_index in adjacency[tile1]
         resource_type = static.tile_to_resource[tile1]
         if get_building(dynamic.p1, building_index) == 1
-            add_resource(dynamic.p1, dynamic.bank, resource_type, 1)
+            increase_cards(dynamic.p1, resource_type, 1)
         elseif get_building(dynamic.p2, building_index) == 1
-            add_resource(dynamic.p2, dynamic.bank, resource_type, 1)
+            increase_cards(dynamic.p1, resource_type, 1)
         elseif get_building(dynamic.p1, building_index) == 2
-            add_resource(dynamic.p1, dynamic.bank, resource_type, 2)
+            increase_cards(dynamic.p1, resource_type, 2)
         elseif get_building(dynamic.p2, building_index) == 2
-            add_resource(dynamic.p2, dynamic.bank, resource_type, 2)
+            increase_cards(dynamic.p2, resource_type, 2)
         end
     end
 
@@ -71,13 +90,13 @@ function roll_dice(num::Int8, static::StaticBoard, dynamic::DynamicBoard2P)
     for building_index in adjacency[tile2]
         resource_type = static.tile_to_resource[tile2]
         if get_building(dynamic.p1, building_index) == 1
-            add_resource(dynamic.p1, dynamic.bank, resource_type, 1)
+            increase_cards(dynamic.p1, resource_type, 1)
         elseif get_building(dynamic.p2, building_index) == 1
-            add_resource(dynamic.p2, dynamic.bank, resource_type, 1)
+            increase_cards(dynamic.p2, resource_type, 1)
         elseif get_building(dynamic.p1, building_index) == 2
-            add_resource(dynamic.p1, dynamic.bank, resource_type, 2)
+            increase_cards(dynamic.p1, resource_type, 2)
         elseif get_building(dynamic.p2, building_index) == 2
-            add_resource(dynamic.p2, dynamic.bank, resource_type, 2)
+            increase_cards(dynamic.p2, resource_type, 2)
         end
     end
 end
@@ -87,13 +106,12 @@ function commit(board::Board2P, move::Move, force_end::Bool = false)
     println("Committing move.")
 
     last_road::UInt8 = 0b0
-    bank::Bank = board.dynamic.bank
 
     player = get_next_player(board.dynamic)
     for purchase::UInt8 in move.buy
 
         if (purchase & 0b10000000) == 0b00000000 # road
-            spend_resource(player, bank, 1) # spend resource for road
+            buy(player, 1) # spend resource for road
             last_road = purchase & 0b01111111
             set_road(player, last_road) # road index
             clear_force_road(player) # clear forced road after building
@@ -101,7 +119,7 @@ function commit(board::Board2P, move::Move, force_end::Bool = false)
         end
 
         if (purchase & 0b11000000) == 0b10000000 # building
-            upgrade_building(player, bank, purchase & 0b00111111) # 1 for settlement
+            upgrade_building(player, purchase & 0b00111111) # 1 for settlement
             if !initial_phase_ended(player)
                 force_road(player) # force road after settlement
             end
@@ -109,7 +127,7 @@ function commit(board::Board2P, move::Move, force_end::Bool = false)
         end
 
         if (purchase & 0b11000000) == 0b11000000 # development card
-            spend_resource(player, bank, 4) # spend resource for development card
+            buy(player, 4) # spend resource for development card
             buy_development_card(player)
             continue
         end
@@ -127,11 +145,7 @@ function commit(board::Board2P, move::Move, force_end::Bool = false)
                 if resource == 0
                     continue # skip desert
                 end
-                if get_resource(bank, resource) == 0
-                    @warn "Bank has no resources left for resource type: $(resource)"
-                    continue # skip if bank has no resources
-                end
-                add_resource(player, bank, resource, 1)
+                increase_cards(player, resource, 1)
             end
 
         end

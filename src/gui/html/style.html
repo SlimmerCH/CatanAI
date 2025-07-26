@@ -457,22 +457,6 @@
     .dev-card-btn:hover, .use-dev-btn:hover {
         background: #4d6b75;
     }
-    .turn-indicator {
-        display: inline-flex;
-        align-items: center;
-        font-weight: bold;
-        font-size: 1.7em;
-        margin: 0 1.5em;
-    }
-    .turn-indicator .circle {
-        display: inline-block;
-        width: 1.5em;
-        height: 1.5em;
-        border-radius: 50%;
-        margin-right: 0.7em;
-        border: 2px solid #333;
-        vertical-align: middle;
-    }
     .footer {
         font-family: sans-serif;
         display: flex;
@@ -503,7 +487,6 @@
     .ic1 {
         padding-left: 0.6vmin;
     }
-
 
     .r1, .r3, .r5, .r11, .r13, .r15, .r17, .r24, .r26, .r28, .r30, .r32, .r41, .r43, .r45, .r47, .r49, .r56, .r58, .r60, .r62, .r68, .r70, .r72 {
         rotate: 60deg;
@@ -583,18 +566,83 @@
         justify-content: space-between;
         align-items: center;
     }
-    .sidebar .end-move-btn, .sidebar-right .end-move-btn {
-        margin-top: 2.5vmin;
-        padding: 0.8vmin 2.5vmin;
-        font-size: 1.7vmin;
+
+    /* Bottom left controls */
+    .bottom-controls {
+        position: fixed;
+        left: 2vw;
+        bottom: 2vw;
+        background: #f7f7f7;
+        border-radius: 1em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+        padding: 1.5em;
+        z-index: 100;
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+        min-width: 200px;
+    }
+
+    .control-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+    }
+
+    .end-move-btn {
+        padding: 0.7vmin 2.2vmin;
+        font-size: 1.5vmin;
         background: #2a88bc;
         color: #fff;
         border: none;
         border-radius: 0.7vmin;
         cursor: pointer;
         transition: background 0.2s;
+        text-align: center;
     }
-    .sidebar .end-move-btn:hover, .sidebar-right .end-move-btn:hover {
+
+    .end-move-btn:hover {
         background: #1e5e85;
+    }
+
+    .turn-indicator {
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+
+    .turn-indicator .circle {
+        display: inline-block;
+        width: 1.2em;
+        height: 1.2em;
+        border-radius: 50%;
+        margin-right: 0.7em;
+        border: 2px solid #333;
+        vertical-align: middle;
+    }
+
+    /* Dice indicator at bottom right */
+    .dice-indicator {
+        position: fixed;
+        right: 2vw;
+        bottom: 2vw;
+        background: #fff;
+        color: #222;
+        border-radius: 1em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+        font-size: 2.5vmin;
+        padding: 0.7em 1.5em;
+        z-index: 100;
+        font-family: sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 0.7em;
+    }
+
+    .dice-indicator .dice-icon {
+        font-size: 2em;
+        margin-right: 0.3em;
     }
 </style>

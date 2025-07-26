@@ -13,6 +13,7 @@ module LocalServer
     global server_task = nothing
     global server_running::Bool = false
     global board_ref = nothing  # Holds the current Board2P object
+    global last_dice_roll = "";
 
     function handler(req)
         global response_html, board_ref

@@ -1,7 +1,7 @@
 using ..CatanBoard
 
 function handle_move(move)
-    global board_ref
+    global board_ref, last_dice_roll
     player = CatanBoard.get_next_player(board_ref.dynamic)
 
     println("")
@@ -16,10 +16,12 @@ function handle_move(move)
             purchase = move["index"]
         elseif move["target"] == "building"
             purchase = 0b10000000 | move["index"]
+        elseif move["target"] == "devcard"
+            purchase = 0b11000000
         else
             error("Unknown target for buy move: $(move["target"])")
         end
-        move_obj = CatanBoard.Move([], UInt8[purchase])
+        move_obj = CatanBoard.Move(UInt8[], UInt8[purchase])
 
         @show move_obj
 
@@ -35,10 +37,9 @@ function handle_move(move)
 
     if move["type"] == "end" && CatanBoard.validate(board_ref, Move())
         CatanBoard.commit(board_ref, Move(), true)
-    end
-
-    if initial_phase_ended(get_next_player(board_ref.dynamic))
-        dice = random_dice()
-        roll_dice(dice, board_ref.static, board_ref.dynamic)
+        if initial_phase_ended(get_next_player(board_ref.dynamic))
+            last_dice_roll = random_dice()
+            roll_dice(last_dice_roll, board_ref.static, board_ref.dynamic)
+        end
     end
 end

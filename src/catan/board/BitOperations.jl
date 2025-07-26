@@ -58,7 +58,7 @@ function write_binary_range(uInt::UIntT, pos1::Integer, pos2::Integer, value::In
 
     # Validate input. Remove later for performance
     if pos1 < 1 || pos2 < 1 || pos1 > sizeof(UIntT) * 8 || pos2 > sizeof(UIntT) * 8
-        throw(ArgumentError("Position arguments must be within the valid range for a $(string(UIntT)) type"))
+        throw(ArgumentError("Position arguments $pos1 and $pos2 must be within the valid range for a $(string(UIntT)) type"))
     end
     if pos1 > pos2
         throw(ArgumentError("pos1 must be less than or equal to pos2"))
