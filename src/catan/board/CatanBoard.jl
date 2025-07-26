@@ -1,6 +1,6 @@
 module CatanBoard
 
-    export Board2P, StaticBoard, DynamicBoard2P, display!, rand, fullBoard
+    export Board2P, StaticBoard, DynamicBoard2P, Bank, display!, rand, fullBoard
     export Move, commit, validate
     export get_player_turn, flip_player_turn, get_next_player
     export is_road_forced, force_road, clear_force_road

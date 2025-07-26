@@ -38,8 +38,7 @@ mutable struct Bank
         new(uint)
     end
     function Bank()
-        bank::Bank = new(UInt64(0))
-        set_card_amount(this, 6, 12) # knights
+        new(0x16ac)
     end
 end
 
