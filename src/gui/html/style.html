@@ -176,7 +176,14 @@
         border: #fffC solid;
         border-width: 2px;
         opacity: 1;
+        transform-origin: top left;
+        transition: scale 0.2s;
     }
+
+    .building.neutral:hover {
+        scale: 1.1;
+    }
+
     .building.p1 {
         background-color: var(--p1-color);
         border: #fffC solid;
