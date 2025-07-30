@@ -264,7 +264,7 @@ function display!(board::Board2P; launch_server::Bool=true)
         <head>
         <meta charset="UTF-8">
         <script src="https://kit.fontawesome.com/8788d9e4e4.js" crossorigin="anonymous"></script>
-        $(read(pwd()*"/src/gui/html/style.html", String))
+        $(read(joinpath(@__DIR__, "html", "style.html"), String))
         </head>
         <body>
             $sidebar_html
