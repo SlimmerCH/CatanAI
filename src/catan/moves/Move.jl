@@ -1,6 +1,6 @@
 struct Move
     
-    # AA0YY YXXX trade amount (A) of resource type (X) with the bank for 1 resource of type (Y) 
+    # AA0YY YXXX trade amount (A+1) of resource type (X) with the bank for 1 resource of type (Y) 
     trade::Vector{UInt8} #
 
     # (0XXX XXXX) road with id X       
