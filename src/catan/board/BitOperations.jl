@@ -73,7 +73,7 @@ function write_binary_range(uInt::UIntT, pos1::Integer, pos2::Integer, value::In
     
     # Ensure the value fits within the specified bit range
     if value > mask
-        throw(ArgumentError("Value exceeds the range that can be written to the specified bit positions"))
+        throw(ArgumentError("Value $value exceeds the range of $(pos2 - pos1 + 1) that can be written to the specified bit positions"))
     end
     
     # Clear the bits in the target range

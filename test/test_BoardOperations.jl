@@ -2,16 +2,30 @@ using Test
 using Base: summarysize
 
 @testset "Board Operations" begin
-    d::DynamicBoard2P = Board2P().dynamic
+    b::Board2P = Board2P()
+    d::DynamicBoard2P = b.dynamic
     bank::Bank = d.bank
 
-    @show bank.bitboard |> bitstring
+    @test get_card_amount(bank, 6) == 12 # knights
+    @test get_card_amount(bank, 7) == 2  # road cards
+    @test get_card_amount(bank, 8) == 2  # year of plenty
+    @test get_card_amount(bank, 9) == 2  # monopoly
+    @test get_card_amount(bank, 10) == 5 # victory points
     
     @test get_player_turn(d) == false
     flip_player_turn(d)
     @test get_player_turn(d) == true
     flip_player_turn(d)
     @test get_player_turn(d) == false
+
+    for i in 1:19
+        if b.static.tile_to_resource[i] == 0
+            @test get_robber_position(d.bank) == i
+        end
+    end
+
+    set_robber_position(d.bank, 10)
+    @test get_robber_position(d.bank) == 10
 
     @test get_card_amount(d.p1, 1) == 0
     @test get_card_amount(d.p1, 2) == 0
@@ -84,6 +98,8 @@ using Base: summarysize
     @test get_card_amount(d.bank, 8) == 2
     @test get_card_amount(d.bank, 9) == 0
     @test get_card_amount(d.bank, 10) == 4
+
+    @test get_robber_position(d.bank) == 10
 
     for i in 1:54
         @test is_buildable(d, i) == true

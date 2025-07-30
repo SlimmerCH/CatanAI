@@ -34,11 +34,8 @@ end
 
 mutable struct Bank
     bitboard::UInt64
-    function Bank(uint::UInt64)
-        new(uint)
-    end
     function Bank()
-        new(0x16ac)
+        new(0b1011010101100)
     end
 end
 
@@ -58,9 +55,9 @@ struct Board2P
     dynamic::DynamicBoard2P
 
     function Board2P(static::StaticBoard, dynamic::DynamicBoard2P)
+        reset_robber_position(static, dynamic)
         new(static, dynamic)
     end
-    function Board2P()
-        new(StaticBoard(), DynamicBoard2P())
-    end
 end
+
+Board2P() = Board2P(StaticBoard(), DynamicBoard2P())

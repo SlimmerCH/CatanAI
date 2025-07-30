@@ -8,7 +8,7 @@ function rand(type::Type{PlayerStats})::PlayerStats
 end
 
 function rand(type::Type{Bank})::Bank
-    return Bank(rand(UInt64))
+    return Bank()
 end
 
 function rand(type::Type{Board2P})::Board2P
