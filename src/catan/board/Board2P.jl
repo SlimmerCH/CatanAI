@@ -23,12 +23,13 @@ struct StaticBoard
     tile_to_resource::NTuple{19, Int8}
     tile_to_number::NTuple{19, Int8}
     number_to_tile::NTuple{12, Tuple{Int8, Int8}}
+    ports::NTuple{9, Int8}
     
     function StaticBoard()
 
-        tile_to_resource, tile_to_number, number_to_tile = generate_lookups()
+        tile_to_resource, tile_to_number, number_to_tile, ports = generate_structure()
 
-        new(tile_to_resource, tile_to_number, number_to_tile)
+        new(tile_to_resource, tile_to_number, number_to_tile, ports)
     end
 end
 

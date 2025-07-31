@@ -73,6 +73,7 @@ using Base: summarysize
     @test get_card_amount(d.p1, 8) == 2
     @test get_card_amount(d.p1, 9) == 0
     @test get_card_amount(d.p1, 10) == 4
+    
     @test has_port(d.p1, 1) == true
     @test has_port(d.p1, 2) == false
     @test has_port(d.p1, 3) == false

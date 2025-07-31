@@ -106,9 +106,16 @@ function generate_number_to_tile_lookup(tile_to_number)::NTuple{12, Tuple{Int8, 
     return number_to_tile
 end
 
-function generate_lookups()
+
+function generate_ports()::NTuple{9, Int8}
+    ports = [1,2,3,4,5,6,6,6,6]
+    return Tuple(shuffle(ports))
+end
+
+function generate_structure()
     tile_to_resource = generate_tile_to_resource_lookup()
     tile_to_number = generate_tile_to_number_lookup(tile_to_resource)
     number_to_tile = generate_number_to_tile_lookup(tile_to_number)
-    return tile_to_resource, tile_to_number, number_to_tile
+    ports = generate_ports()
+    return tile_to_resource, tile_to_number, number_to_tile, ports
 end
