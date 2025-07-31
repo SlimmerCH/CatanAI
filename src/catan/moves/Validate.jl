@@ -34,7 +34,7 @@ function validate(board::Board2P, move::Move)::Bool
         return false # Initial phase must be ended before forcing
     end
 
-    if get_robber_position(board.dynamic.bank) == 0 && (!isempty(move.buy) || move.play >> 7 != 1 || move.play & 0b00011111 == 0)
+    if is_robber_pending(board.dynamic.bank) && (!isempty(move.buy) || move.play >> 7 != 1 || move.play & 0b00011111 == 0)
         @warn "Player must place the robber."
         return false
     end
@@ -56,7 +56,7 @@ function validate_purchases(board::Board2P, move::Move)::Bool
 
     for purchase::UInt8 in move.buy
 
-        if get_robber_position(board.dynamic.bank) == 0
+        if is_robber_pending(board.dynamic.bank)
             @warn "Player must place robber before building."
             return false
         end
@@ -143,8 +143,12 @@ function validate_card_play(board::Board2P, move::Move)::Bool
             @warn "Player can not play a Knight card yet."
             return false
         end
-        if tile_id != 0 && (get_card_amount(player, 6) == 0 || !is_devcard_ready(player, 6)) && get_robber_position(board.dynamic.bank) != 0
+        if tile_id != 0 && (get_card_amount(player, 6) == 0 || !is_devcard_ready(player, 6)) && !is_robber_pending(board.dynamic.bank)
             @warn "Player can not relocate the robber."
+            return false
+        end
+        if tile_id == get_robber_position(board.dynamic.bank)
+            @warn "Player cannot relocate the robber on the same tile."
             return false
         end
     elseif move.play == 0b00010000 # Road Building

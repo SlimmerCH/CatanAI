@@ -322,7 +322,12 @@ function set_robber_position(bank::Bank, tile_id::Integer)
     if tile_id < 0 || tile_id > 19 # we allow 0 for pending placement after a knight card
         throw(ArgumentError("Invalid tile ID: $(tile_id)"))
     end
-    bank.bitboard = write_binary_range(bank.bitboard, bank_indexing[3], bank_indexing[3]+4, tile_id)
+    if tile_id == 0
+        bank.bitboard = set_bit(bank.bitboard, bank_indexing[4]) # set pending placement
+    else
+        bank.bitboard = write_binary_range(bank.bitboard, bank_indexing[3], bank_indexing[3]+4, tile_id)
+        bank.bitboard = clear_bit(bank.bitboard, bank_indexing[4]) # clear pending placement
+    end
 end
 
 function reset_robber_position(static::StaticBoard, dynamic::DynamicBoard2P)

@@ -33,7 +33,7 @@ function display!(board::Board2P; launch_server::Bool=true)
     # Player turn indicator
     is_p1_turn = !get_player_turn(board.dynamic)
     turn_color = is_p1_turn ? "#2a88bc" : "#d9300d"
-    turn_text = is_p1_turn ? "Your Turn" : "Opponent's Turn"
+    turn_text = is_p1_turn ? "Your Turn" : "Red's Turn"
 
     # Generate individual use buttons for each dev card type (excluding Victory Point)
     use_buttons_html = join([
@@ -48,12 +48,14 @@ function display!(board::Board2P; launch_server::Bool=true)
             <ul class="resource-list">
                 $(join([ "<li><span>$(resource_names[i])</span><span>$(resource_amounts[i])</span></li>" for i in 1:5 ], "\n"))
             </ul>
+            <button class='trade-btn' id='trade-btn'>Trade Resources</button>
         </div>
         <h2>Development Cards</h2>
         <div class="section">
             <ul class="card-list">
                 $(join([ "<li><span>$(card_names[i])</span><span>$(card_amounts[i])</span></li>" for i in 1:5 ], "\n"))
             </ul>
+            <button class='dev-card-btn' id='buy-devcard'>Buy Development Card</button>
         </div>
         <div class="section">
             <ul class="card-list">
@@ -80,12 +82,14 @@ function display!(board::Board2P; launch_server::Bool=true)
             <ul class="resource-list">
                 $(join([ "<li><span>$(resource_names[i])</span><span>$(opponent_resource_amounts[i])</span></li>" for i in 1:5 ], "\n"))
             </ul>
+            <button class='trade-btn opponent-btn' id='trade-btn-opponent' disabled>Trade Resources</button>
         </div>
         <h2>Development Cards</h2>
         <div class="section">
             <ul class="card-list">
                 $(join([ "<li><span>$(card_names[i])</span><span>$(opponent_card_amounts[i])</span></li>" for i in 1:4 ], "\n"))
             </ul>
+            <button class='dev-card-btn opponent-btn' id='buy-devcard-opponent' disabled>Buy Development Card</button>
         </div>
         <div class="section">
             <ul class="card-list">
@@ -106,8 +110,6 @@ function display!(board::Board2P; launch_server::Bool=true)
             <span>$turn_text</span>
         </div>
         <div class="control-buttons">
-            <button class='dev-card-btn' id='buy-devcard'>Buy Development Card</button>
-            <button class='trade-btn' id='trade-btn'>Trade Resources</button>
             <button class='end-move-btn' id='end-move-btn'>End Move</button>
         </div>
     </div>
@@ -440,7 +442,7 @@ function display!(board::Board2P; launch_server::Bool=true)
                             type: "robber",
                             index: parseInt(el.dataset.hex)
                         };
-                    } else if (el.dataset.settlement || el.dataset.building) {
+                    } else if (el.dataset.building) {
                         move = {
                             type: "buy",
                             target: "building",

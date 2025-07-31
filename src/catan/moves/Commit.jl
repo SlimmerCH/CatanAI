@@ -141,11 +141,11 @@ function commit_card_play(board::Board2P, play::UInt8)
         return # no card played
     elseif play >> 7 == 1 # Knight
         tile_id::Int8 = play & 0b00011111
-        robber_position::Int8 = get_robber_position(board.dynamic.bank)
-        if robber_position != 0
+        robber_pending::Bool = is_robber_pending(board.dynamic.bank)
+        if !robber_pending
             increase_cards(player, 6, -1) # spend knight card
         end
-        if tile_id == 0 || robber_position != 0
+        if tile_id == 0 || !robber_pending
             increment_army(board.dynamic, player)
             unready_all_devcards(player) # play may only play one card per turn
         end
