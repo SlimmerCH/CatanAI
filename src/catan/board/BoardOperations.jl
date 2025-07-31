@@ -53,6 +53,38 @@ end
 # 4 - wheat
 # 5 - ore
 
+function get_trade_offer(player::PlayerStats, source_resource::Integer)
+    if source_resource < 1 || source_resource > 5
+        throw(ArgumentError("Invalid resource ID: $(source_resource)"))
+    end
+    @show has_port(player, source_resource), has_port(player, 6)
+    if has_port(player, source_resource)
+        return 2;
+    elseif has_port(player, 6) # generic port
+        return 3;
+    else
+        return 4;
+    end
+end
+
+function can_afford_trade(player::PlayerStats, source_resource::Integer)
+    if source_resource < 1 || source_resource > 5
+        throw(ArgumentError("Invalid resource ID: $(source_resource)"))
+    end
+
+    amount = get_trade_offer(player, source_resource)
+    return can_afford(player, source_resource, amount)
+
+end
+
+function get_port_of_building(building_index::Integer)::Int8
+    if building_index < 1 || building_index > 54
+        throw(ArgumentError("Invalid building index: $(building_index)"))
+    end
+    adjacency::NTuple{54, Int8} = node_to_port   # from BoardGraph.jl
+    return adjacency[building_index]
+end
+
 function is_tile_occupied_by(player::PlayerStats, tile_id::Int8)::Bool
     adjacency::NTuple{19, NTuple{6, Int8}} = tile_to_node   # from BoardGraph.jl
     neighbors::NTuple{6, Int8} = adjacency[tile_id]
@@ -141,8 +173,12 @@ function clear_force_road(player::PlayerStats)
 end
 
 function building_has_road(player::PlayerStats, building_index::UInt8)::Bool
+    if building_index < 1 || building_index > 54
+        throw(ArgumentError("Invalid building index: $(building_index)"))
+    end
     adjacency::NTuple{54, NTuple{3, Int8}} = node_to_edge   # from BoardGraph.jl
     neighbors::NTuple{3, Int8} = adjacency[building_index]
+
     return (
         player.road_bitboard(neighbors[1]) ||
         player.road_bitboard(neighbors[2]) ||

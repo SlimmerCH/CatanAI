@@ -41,8 +41,10 @@ function commit(board::Board2P, move::Move, end_move::Bool = false)
         force_road(player) # force road purchases after road building devcard
     end
 
-    last_road::UInt8 = commit_purchases(board, move.buy)
+    commit_trades(board, move.trade)
     commit_card_play(board, move.play)
+    last_road::UInt8 = commit_purchases(board, move.buy)
+    
 
     if (end_move)
         if !initial_phase_ended(player) && count_settlements(player) == 2
@@ -69,6 +71,18 @@ function initialize_turn(board::Board2P)
         if get_card_amount(player, i) > 0
             set_devcard_ready(player, i) # card has been in hand for a turn
         end
+    end
+end
+
+function commit_trades(board::Board2P, trade::Vector{UInt8})
+    player::PlayerStats = get_next_player(board.dynamic)
+    for trade::UInt8 in trade
+        trade_amount = ((trade & 0b11000000) >> 6) + 1
+        target = (trade & 0b00111000) >> 3
+        source = trade & 0b00000111
+
+        increase_cards(player, source, -trade_amount)
+        increase_cards(player, target, 1)
     end
 end
 
@@ -103,7 +117,7 @@ function commit_purchases(board::Board2P, buy::Vector{UInt8})::UInt8
         end
 
         if (purchase & 0b11000000) == 0b10000000 # building
-            upgrade_building(player, purchase & 0b00111111) # 1 for settlement
+            upgrade_building(player, board.static.ports, purchase & 0b00111111) # 1 for settlement
             if !initial_ended
                 force_road(player) # force road after settlement
             end

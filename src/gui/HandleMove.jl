@@ -83,6 +83,19 @@ function handle_move(move)
 
         validate_and_play(move_obj, false)
     end
+
+    if move["type"] == "trade"
+        source::UInt8 = move["source_resource"]
+        target::UInt8 = move["target_resource"]
+        amount::UInt8 = CatanBoard.get_trade_offer(player, source)
+        @show source
+        @show target
+        @show amount 
+        trade::UInt8 = ((amount-1) << 6) | source | (target << 3)
+        @show trade |> bitstring
+        move_obj = CatanBoard.Move(UInt8[trade], UInt8[], UInt8(0))
+        validate_and_play(move_obj, false)
+    end
 end
 
 function validate_and_play(move, force_end::Bool)

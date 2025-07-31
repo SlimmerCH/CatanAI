@@ -6,7 +6,28 @@ function validate(board::Board2P, move::Move)::Bool
 
     # This function should implement the game rules to validate the move
     
+    # validate if the move is a single action
+    if length(move.trade) > 1 + length(move.buy) > 1 + move.play != UInt8(0) > 1
+        throw("Move validation contains multiple actions, which is not supported.")
+    end
+
     player::PlayerStats = get_next_player(board.dynamic)
+
+    for trade::UInt8 in move.trade
+        trade_amount = ((trade & 0b11000000) >> 6) + 1
+        target = (trade & 0b00111000) >> 3
+        source = trade & 0b00000111
+
+        if target == source
+            @warn "Trade cannot be made with the same resource type."
+            return false
+        end
+        
+        if !can_afford(player, source, trade_amount)
+            @warn "Player cannot afford the trade: $(trade_amount) of resource $(source) for 1 of resource $(target)."
+            return false
+        end
+    end
 
     if isempty(move.buy) && !initial_phase_ended(player)
         @warn "Player must place a structure."

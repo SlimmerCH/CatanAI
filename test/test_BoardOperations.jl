@@ -12,6 +12,15 @@ using Base: summarysize
     @test get_card_amount(bank, 9) == 2  # monopoly
     @test get_card_amount(bank, 10) == 5 # victory points
     
+    port_node = 0
+    for i in 1:54
+        if get_port_of_building(i) == 3
+            port_node = i
+            break
+        end
+    end
+    @test port_node != 0
+
     @test get_player_turn(d) == false
     flip_player_turn(d)
     @test get_player_turn(d) == true
@@ -132,4 +141,7 @@ using Base: summarysize
             @test is_buildable(d, i) == true
         end
     end
+
+    @test get_port_of_building(20) == 0
+
 end

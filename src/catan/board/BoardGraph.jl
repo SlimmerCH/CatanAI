@@ -3,6 +3,7 @@ include("../../data/road_adjacency.jl")
 include("../../data/edge_to_node.jl")
 include("../../data/node_to_tile.jl")
 include("../../data/tile_to_node.jl")
+include("../../data/node_to_port.jl")
 
 # Precompute node_to_edge mapping
 node_edges = [Int8[] for _ in 1:54]

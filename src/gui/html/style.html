@@ -609,6 +609,25 @@ html, body {
     .dev-card-btn:hover, .use-dev-btn:hover {
         background: #4d6b75;
     }
+
+    .trade-btn {
+        margin-top: 1.2vmin;
+        padding: 0.7vmin 2.2vmin;
+        font-size: 1.5vmin;
+        background: #e67e22;
+        color: #fff;
+        border: none;
+        border-radius: 0.7vmin;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .trade-btn:hover {
+        background: #d35400;
+    }
     .footer {
         font-family: sans-serif;
         display: flex;
@@ -697,7 +716,23 @@ html, body {
         font-size: 1.5em;
         z-index: 11;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
+
+    .sidebar-right .toggle-btn svg {
+        width: 1em;
+        height: 1em;
+        fill: currentColor;
+        transition: transform 0.3s ease;
+        transform: rotate(180deg);
+    }
+
+    .sidebar-right .toggle-btn.flipped svg {
+        transform: rotate(0deg);
+    }
+
     .sidebar h2, .sidebar-right h2 {
         margin-top: 0;
         font-size: 2.2vmin;
@@ -982,7 +1017,7 @@ html, body {
 
     .resource-grid {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 15px;
         margin-bottom: 25px;
     }
@@ -1090,5 +1125,96 @@ html, body {
         font-size: 0.9em;
         color: #666;
         margin-top: 10px;
+    }
+
+    /* Trading popup specific styles */
+    .trade-popup-content {
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .trade-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 3px solid #e67e22;
+    }
+
+    .trade-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .trade-side {
+        flex: 1;
+        text-align: center;
+    }
+
+    .trade-label {
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #34495e;
+        font-size: 0.9em;
+    }
+
+    .trade-arrow {
+        font-size: 1.5em;
+        color: #e67e22;
+        font-weight: bold;
+        min-width: 30px;
+    }
+
+    .resource-grid-small {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .resource-grid-small .resource-option {
+        padding: 8px;
+        margin: 0;
+    }
+
+    .resource-grid-small .resource-icon {
+        width: 25px;
+        height: 25px;
+        font-size: 0.9em;
+        margin-bottom: 4px;
+    }
+
+    .resource-grid-small .resource-name {
+        font-size: 0.7em;
+    }
+
+    .port-trade {
+        border: 2px solid #3498db;
+        border-radius: 6px;
+        padding: 10px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 10px;
+    }
+
+    .port-trade:hover {
+        border-color: #2980b9;
+        background: #f8f9ff;
+    }
+
+    .selected-trade {
+        margin-bottom: 15px;
+        padding: 12px;
+        background: #e8f5e8;
+        border-radius: 6px;
+        font-size: 0.95em;
+        color: #27ae60;
+        border-left: 3px solid #27ae60;
     }
 </style>

@@ -8,7 +8,7 @@ module CatanBoard
     export can_afford, get_card, set_card, add_card
     export get_building, set_building, is_buildable, is_road, set_road, has_road_neighbor, building_has_road, get_settlement_of_road
     export count_settlements, count_cities, count_roads
-    export acquire_port, has_port
+    export acquire_port, has_port, get_port_of_building, can_afford_trade, get_trade_offer
     export initial_phase_ended
     export roll_dice, random_dice
     export set_robber_position, get_robber_position, reset_robber_position

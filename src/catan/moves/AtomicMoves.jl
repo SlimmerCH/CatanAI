@@ -1,4 +1,4 @@
-function upgrade_building(player::PlayerStats, index::UInt8)
+function upgrade_building(player::PlayerStats, port_lookup::NTuple{9, Int8}, index::UInt8)
     # build a settlement
     if get_building(player, index) == 0
         set_building(player, index, 1) # 1 for settlement
@@ -8,6 +8,10 @@ function upgrade_building(player::PlayerStats, index::UInt8)
         buy(player, 3) # spend resource for city
     else
         error("Cannot upgrade building at index $(index): No settlement found.")
+    end
+    port::Int8 = get_port_of_building(index)
+    if port != 0
+        acquire_port(player, port_lookup[port]) # activate port if building is on a port
     end
 end
 

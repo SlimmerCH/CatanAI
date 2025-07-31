@@ -8,6 +8,7 @@ const building_path::String = """<path d="M56,0H8C5.789,0,4,1.789,4,4v56c0,2.211
 const license::String = """<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/SlimmerCH/CatanAI">CatanAI.jl</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/SlimmerCH">Selim Bucher</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0<img class="ic ic1" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img class="ic" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img class="ic" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1" alt=""><img class="ic" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p>"""
 const ghost_path::String = """<path d="M168.1 531.1L156.9 540.1C153.7 542.6 149.8 544 145.8 544C136 544 128 536 128 526.2L128 256C128 150 214 64 320 64C426 64 512 150 512 256L512 526.2C512 536 504 544 494.2 544C490.2 544 486.3 542.6 483.1 540.1L471.9 531.1C458.5 520.4 439.1 522.1 427.8 535L397.3 570C394 573.8 389.1 576 384 576C378.9 576 374.1 573.8 370.7 570L344.1 539.5C331.4 524.9 308.7 524.9 295.9 539.5L269.3 570C266 573.8 261.1 576 256 576C250.9 576 246.1 573.8 242.7 570L212.2 535C200.9 522.1 181.5 520.4 168.1 531.1zM288 256C288 238.3 273.7 224 256 224C238.3 224 224 238.3 224 256C224 273.7 238.3 288 256 288C273.7 288 288 273.7 288 256zM384 288C401.7 288 416 273.7 416 256C416 238.3 401.7 224 384 224C366.3 224 352 238.3 352 256C352 273.7 366.3 288 384 288z"/>"""
 const harbor_svg::String ="""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M320 128C302.3 128 288 142.3 288 160C288 177.7 302.3 192 320 192C337.7 192 352 177.7 352 160C352 142.3 337.7 128 320 128zM224 160C224 107 267 64 320 64C373 64 416 107 416 160C416 201.8 389.3 237.4 352 250.5L352 508.4C414.9 494.1 462.2 438.7 463.9 371.9L447.8 386C437.8 394.7 422.7 393.7 413.9 383.7C405.1 373.7 406.2 358.6 416.2 349.8L480.2 293.8C489.2 285.9 502.8 285.9 511.8 293.8L575.8 349.8C585.8 358.5 586.8 373.7 578.1 383.7C569.4 393.7 554.2 394.7 544.2 386L528 371.9C525.9 485 433.6 576 320 576C206.4 576 114.1 485 112 371.9L95.8 386.1C85.8 394.8 70.7 393.8 61.9 383.8C53.1 373.8 54.2 358.7 64.2 349.9L128.2 293.9C137.2 286 150.8 286 159.8 293.9L223.8 349.9C233.8 358.6 234.8 373.8 226.1 383.8C217.4 393.8 202.2 394.8 192.2 386.1L176.1 372C177.9 438.8 225.2 494.2 288 508.5L288 250.6C250.7 237.4 224 201.9 224 160.1z"/></svg>"""
+const arrow_svg::String = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/></svg>"""
 
 function display!(board::Board2P; launch_server::Bool=true)
     LocalServer.board_ref = board  # Set the board reference automatically
@@ -66,7 +67,7 @@ function display!(board::Board2P; launch_server::Bool=true)
 
     sidebar_right_html = """
     <div class="sidebar-right" id="sidebar-right">
-        <button class="toggle-btn" id="toggle-right">&lt;</button>
+        <button class="toggle-btn" id="toggle-right">$arrow_svg</button>
         <h2>Opponent</h2>
         <div class="section">
             <ul class="resource-list">
@@ -92,6 +93,7 @@ function display!(board::Board2P; launch_server::Bool=true)
         </div>
         <div class="control-buttons">
             <button class='dev-card-btn' id='buy-devcard'>Buy Development Card</button>
+            <button class='trade-btn' id='trade-btn'>Trade Resources</button>
             <button class='end-move-btn' id='end-move-btn'>End Move</button>
         </div>
     </div>
@@ -117,6 +119,12 @@ function display!(board::Board2P; launch_server::Bool=true)
         for card_id in 6:9
             card_name = ["Knight", "Road Building", "Monopoly", "Year of Plenty"][card_id-5]
             push!(flags, ("$(card_name) Ready", is_devcard_ready(player, card_id)))
+        end
+        
+        # Port access flags
+        port_names = ["Wood Port", "Brick Port", "Sheep Port", "Wheat Port", "Ore Port", "Generic Port (3:1)"]
+        for port_id in 1:6
+            push!(flags, ("$(port_names[port_id])", has_port(player, port_id)))
         end
         
         return flags
@@ -258,6 +266,65 @@ function display!(board::Board2P; launch_server::Bool=true)
             </div>
         </div>
     </div>
+
+    <!-- Trading Popup -->
+    <div class="popup-overlay" id="trade-popup">
+        <div class="popup-content trade-popup-content">
+            <div class="popup-title">🤝 Trade Resources</div>
+            
+            <div class="trade-section">
+                <div class="trade-row">
+                    <div class="trade-side">
+                        <div class="trade-label" id="give-label">Give 4:</div>
+                        <div class="resource-grid-small" id="general-trade-give">
+                            <!-- Will be populated by JavaScript based on available resources -->
+                        </div>
+                    </div>
+                    <div class="trade-arrow">→</div>
+                    <div class="trade-side">
+                        <div class="trade-label">Get 1:</div>
+                        <div class="resource-grid-small">
+                            <div class="resource-option trade-receive" data-resource="1">
+                                <div class="resource-icon wood">🌲</div>
+                                <div class="resource-name">Wood</div>
+                            </div>
+                            <div class="resource-option trade-receive" data-resource="2">
+                                <div class="resource-icon brick">🧱</div>
+                                <div class="resource-name">Brick</div>
+                            </div>
+                            <div class="resource-option trade-receive" data-resource="3">
+                                <div class="resource-icon sheep">🐑</div>
+                                <div class="resource-name">Sheep</div>
+                            </div>
+                            <div class="resource-option trade-receive" data-resource="4">
+                                <div class="resource-icon wheat">🌾</div>
+                                <div class="resource-name">Wheat</div>
+                            </div>
+                            <div class="resource-option trade-receive" data-resource="5">
+                                <div class="resource-icon ore">⛰️</div>
+                                <div class="resource-name">Ore</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trade-section" id="port-trades" style="display: none;">
+                <div id="port-trade-options">
+                    <!-- Port trades will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="selected-trade" id="trade-selected" style="display: none;">
+                Selected: <span id="trade-selection-text">None</span>
+            </div>
+
+            <div class="popup-buttons">
+                <button class="popup-btn cancel" id="trade-cancel">Cancel</button>
+                <button class="popup-btn confirm" id="trade-confirm" disabled>Confirm Trade</button>
+            </div>
+        </div>
+    </div>
     """
 
     html::String = """
@@ -329,10 +396,10 @@ function display!(board::Board2P; launch_server::Bool=true)
             function setSidebarState(open) {
                 if (open) {
                     sidebarRight.classList.remove('hide');
-                    toggleBtn.textContent = '';
+                    toggleBtn.classList.remove('flipped');
                 } else {
                     sidebarRight.classList.add('hide');
-                    toggleBtn.textContent = '';
+                    toggleBtn.classList.add('flipped');
                 }
                 localStorage.setItem('sidebarRightOpen', open ? '1' : '0');
             }
@@ -413,167 +480,249 @@ function display!(board::Board2P; launch_server::Bool=true)
                     e.stopPropagation();
                 });
             }
-            // Resource selection popup functionality
-            let monopolySelected = null;
-            let plentySelected = [];
-            const resourceNames = ['', 'Wood', 'Brick', 'Sheep', 'Wheat', 'Ore'];
 
-            // Monopoly popup handlers
-            function openMonopolyPopup() {
-                document.getElementById('monopoly-popup').classList.add('show');
-                monopolySelected = null;
-                updateMonopolyUI();
+            // Trading functionality
+            let selectedTradeGive = null;
+            let selectedTradeReceive = null;
+            let selectedPortTrade = null;
+
+            function openTradePopup() {
+                document.getElementById('trade-popup').classList.add('show');
+                selectedTradeGive = null;
+                selectedTradeReceive = null;
+                selectedPortTrade = null;
+                updateTradeUI();
+                updateGeneralTradeLabels();
+                populatePortTrades();
             }
 
-            function closeMonopolyPopup() {
-                document.getElementById('monopoly-popup').classList.remove('show');
-                document.querySelectorAll('#monopoly-popup .resource-option').forEach(el => el.classList.remove('selected'));
-                monopolySelected = null;
+            function closeTradePopup() {
+                document.getElementById('trade-popup').classList.remove('show');
+                document.querySelectorAll('#trade-popup .resource-option').forEach(el => el.classList.remove('selected'));
+                selectedTradeGive = null;
+                selectedTradeReceive = null;
+                selectedPortTrade = null;
             }
 
-            function updateMonopolyUI() {
-                const confirmBtn = document.getElementById('monopoly-confirm');
-                confirmBtn.disabled = monopolySelected === null;
-            }
-
-            // Year of Plenty popup handlers
-            function openPlentyPopup() {
-                document.getElementById('plenty-popup').classList.add('show');
-                plentySelected = [];
-                updatePlentyUI();
-            }
-
-            function closePlentyPopup() {
-                document.getElementById('plenty-popup').classList.remove('show');
-                document.querySelectorAll('#plenty-popup .resource-option').forEach(el => el.classList.remove('selected'));
-                plentySelected = [];
-                document.getElementById('plenty-selected').style.display = 'none';
-            }
-
-            function updatePlentyUI() {
-                const confirmBtn = document.getElementById('plenty-confirm');
-                const selectedDiv = document.getElementById('plenty-selected');
-                const selectionText = document.getElementById('plenty-selection-text');
-                const counter = document.getElementById('plenty-counter');
+            function updateGeneralTradeLabels() {
+                const hasGenericPort = $(has_port(player, 6) ? "true" : "false");
+                const giveLabel = document.getElementById('give-label');
                 
-                confirmBtn.disabled = plentySelected.length !== 2;
+                if (hasGenericPort) {
+                    giveLabel.textContent = 'Give 3:';
+                } else {
+                    giveLabel.textContent = 'Give 4:';
+                }
                 
-                if (plentySelected.length > 0) {
+                // Populate general trade give options (excluding resources with 2:1 ports)
+                populateGeneralTradeGive();
+            }
+
+            function populateGeneralTradeGive() {
+                const generalTradeGiveContainer = document.getElementById('general-trade-give');
+                const resourceAmounts = [0, $(join(resource_amounts, ", "))];
+                const resourceNames = ['', 'Wood', 'Brick', 'Sheep', 'Wheat', 'Ore'];
+                const resourceIcons = ['', '🌲', '🧱', '🐑', '🌾', '⛰️'];
+                const resourceClasses = ['', 'wood', 'brick', 'sheep', 'wheat', 'ore'];
+                const hasGenericPort = $(has_port(player, 6) ? "true" : "false");
+                const playerPorts = [$(join([string(has_port(player, i) ? "true" : "false") for i in 1:6], ", "))];
+                const tradeAmount = hasGenericPort ? 3 : 4;
+                
+                let generalTradeHtml = '';
+                
+                // Add resources that don't have 2:1 ports and have enough resources
+                for (let i = 1; i <= 5; i++) {
+                    const hasSpecificPort = playerPorts[i-1];
+                    const hasEnoughResources = resourceAmounts[i] >= tradeAmount;
+                    
+                    // Only show if player doesn't have a 2:1 port for this resource and has enough resources
+                    if (!hasSpecificPort && hasEnoughResources) {
+                        generalTradeHtml += '<div class="resource-option trade-give" data-resource="' + i + '">';
+                        generalTradeHtml += '<div class="resource-icon ' + resourceClasses[i] + '">' + resourceIcons[i] + '</div>';
+                        generalTradeHtml += '<div class="resource-name">' + resourceNames[i] + '</div>';
+                        generalTradeHtml += '</div>';
+                    }
+                }
+                
+                if (generalTradeHtml === '') {
+                    generalTradeHtml = '<div class="no-general-trades">No general trades available</div>';
+                }
+                
+                generalTradeGiveContainer.innerHTML = generalTradeHtml;
+                
+                // Add event listeners for general trade give options
+                document.querySelectorAll('.trade-give').forEach(option => {
+                    option.addEventListener('click', function() {
+                        document.querySelectorAll('.trade-give').forEach(el => el.classList.remove('selected'));
+                        document.querySelectorAll('.port-receive').forEach(el => el.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedTradeGive = parseInt(this.dataset.resource);
+                        selectedPortTrade = null;
+                        updateTradeUI();
+                    });
+                });
+            }
+
+            function populatePortTrades() {
+                const portTradesContainer = document.getElementById('port-trade-options');
+                const portTradesSection = document.getElementById('port-trades');
+                const resourceAmounts = [0, $(join(resource_amounts, ", "))];
+                const resourceNames = ['', 'Wood', 'Brick', 'Sheep', 'Wheat', 'Ore'];
+                const resourceIcons = ['', '🌲', '🧱', '🐑', '🌾', '⛰️'];
+                const resourceClasses = ['', 'wood', 'brick', 'sheep', 'wheat', 'ore'];
+                
+                // Check player ports - these are the port indices that provide 2:1 trades
+                const playerPorts = [$(join([string(has_port(player, i) ? "true" : "false") for i in 1:6], ", "))];
+                
+                let portTradesHtml = '';
+                let hasPortTrades = false;
+                
+                // Add specific resource ports (2:1)
+                for (let i = 1; i <= 5; i++) {
+                    if (playerPorts[i-1] && resourceAmounts[i] >= 2) {
+                        hasPortTrades = true;
+                        portTradesHtml += '<div class="trade-row port-trade" data-give="' + i + '" data-receive="0">';
+                        portTradesHtml += '<div class="trade-side">';
+                        portTradesHtml += '<div class="trade-label">Give 2:</div>';
+                        portTradesHtml += '<div class="resource-option selected" data-resource="' + i + '">';
+                        portTradesHtml += '<div class="resource-icon ' + resourceClasses[i] + '">' + resourceIcons[i] + '</div>';
+                        portTradesHtml += '<div class="resource-name">' + resourceNames[i] + '</div>';
+                        portTradesHtml += '</div></div>';
+                        portTradesHtml += '<div class="trade-arrow">→</div>';
+                        portTradesHtml += '<div class="trade-side">';
+                        portTradesHtml += '<div class="trade-label">Get 1:</div>';
+                        portTradesHtml += '<div class="resource-grid-small">';
+                        for (let j = 1; j <= 5; j++) {
+                            if (j !== i) {
+                                portTradesHtml += '<div class="resource-option port-receive" data-resource="' + j + '" data-port-give="' + i + '">';
+                                portTradesHtml += '<div class="resource-icon ' + resourceClasses[j] + '">' + resourceIcons[j] + '</div>';
+                                portTradesHtml += '<div class="resource-name">' + resourceNames[j] + '</div>';
+                                portTradesHtml += '</div>';
+                            }
+                        }
+                        portTradesHtml += '</div></div></div>';
+                    }
+                }
+                
+                // Show or hide the port trades section based on availability
+                if (hasPortTrades) {
+                    portTradesSection.style.display = 'block';
+                    portTradesContainer.innerHTML = portTradesHtml;
+                    
+                    // Add event listeners for port trades after they're created
+                    setTimeout(() => {
+                        document.querySelectorAll('.port-receive').forEach(option => {
+                            option.addEventListener('click', function() {
+                                // Clear previous selections
+                                document.querySelectorAll('.port-receive').forEach(el => el.classList.remove('selected'));
+                                document.querySelectorAll('.trade-give, .trade-receive').forEach(el => el.classList.remove('selected'));
+                                
+                                this.classList.add('selected');
+                                selectedPortTrade = {
+                                    give: parseInt(this.dataset.portGive),
+                                    receive: parseInt(this.dataset.resource)
+                                };
+                                selectedTradeGive = null;
+                                selectedTradeReceive = null;
+                                updateTradeUI();
+                            });
+                        });
+                    }, 0);
+                } else {
+                    portTradesSection.style.display = 'none';
+                }
+            }
+
+            function updateTradeUI() {
+                const confirmBtn = document.getElementById('trade-confirm');
+                const selectedDiv = document.getElementById('trade-selected');
+                const selectionText = document.getElementById('trade-selection-text');
+                
+                let canConfirm = false;
+                let selectionString = 'None';
+                
+                if (selectedPortTrade) {
+                    const resourceNames = ['', 'Wood', 'Brick', 'Sheep', 'Wheat', 'Ore'];
+                    selectionString = 'Port Trade: Give 2 ' + resourceNames[selectedPortTrade.give] + ' → Get 1 ' + resourceNames[selectedPortTrade.receive];
+                    canConfirm = true;
+                } else if (selectedTradeGive && selectedTradeReceive) {
+                    const resourceNames = ['', 'Wood', 'Brick', 'Sheep', 'Wheat', 'Ore'];
+                    const hasGenericPort = $(has_port(player, 6) ? "true" : "false");
+                    const tradeRatio = hasGenericPort ? '3:1' : '4:1';
+                    selectionString = 'General Trade (' + tradeRatio + '): Give ' + resourceNames[selectedTradeGive] + ' → Get ' + resourceNames[selectedTradeReceive];
+                    canConfirm = true;
+                }
+                
+                confirmBtn.disabled = !canConfirm;
+                
+                if (canConfirm) {
                     selectedDiv.style.display = 'block';
-                    selectionText.textContent = plentySelected.map(r => resourceNames[r]).join(', ');
+                    selectionText.textContent = selectionString;
                 } else {
                     selectedDiv.style.display = 'none';
                 }
-                
-                counter.textContent = 'Select 2 resources (' + plentySelected.length + '/2 selected)';
             }
 
-            // Event listeners for monopoly
-            document.getElementById('monopoly-cancel').addEventListener('click', closeMonopolyPopup);
-            document.getElementById('monopoly-confirm').addEventListener('click', function() {
-                if (monopolySelected !== null) {
+            // Trade button event listener
+            document.getElementById('trade-btn').addEventListener('click', function(e) {
+                openTradePopup();
+                e.stopPropagation();
+            });
+
+            // Trade popup event listeners
+            document.getElementById('trade-cancel').addEventListener('click', function(e) {
+                closeTradePopup();
+                e.stopPropagation();
+            });
+            
+            document.getElementById('trade-confirm').addEventListener('click', function(e) {
+                let tradeRequest = null;
+                
+                if (selectedPortTrade) {
+                    tradeRequest = {
+                        type: "trade",
+                        source_resource: selectedPortTrade.give,
+                        target_resource: selectedPortTrade.receive
+                    };
+                } else if (selectedTradeGive && selectedTradeReceive) {
+                    tradeRequest = {
+                        type: "trade",
+                        source_resource: selectedTradeGive,
+                        target_resource: selectedTradeReceive
+                    };
+                }
+                
+                if (tradeRequest) {
                     fetch('/move', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            type: "use_devcard",
-                            card_id: 8,
-                            resource1: monopolySelected
-                        })
+                        body: JSON.stringify(tradeRequest)
                     }).then(resp => resp.text())
                       .then(msg => {
                           location.reload();
                       });
                 }
-                closeMonopolyPopup();
+                closeTradePopup();
+                e.stopPropagation();
             });
 
-            document.querySelectorAll('#monopoly-popup .resource-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    document.querySelectorAll('#monopoly-popup .resource-option').forEach(el => el.classList.remove('selected'));
-                    this.classList.add('selected');
-                    monopolySelected = parseInt(this.dataset.resource);
-                    updateMonopolyUI();
-                });
-            });
-
-            // Event listeners for year of plenty
-            document.getElementById('plenty-cancel').addEventListener('click', closePlentyPopup);
-            document.getElementById('plenty-confirm').addEventListener('click', function() {
-                if (plentySelected.length === 2) {
-                    fetch('/move', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            type: "use_devcard",
-                            card_id: 9,
-                            resource1: plentySelected[0],
-                            resource2: plentySelected[1]
-                        })
-                    }).then(resp => resp.text())
-                      .then(msg => {
-                          location.reload();
-                      });
-                }
-                closePlentyPopup();
-            });
-
-            document.querySelectorAll('#plenty-popup .resource-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const resourceId = parseInt(this.dataset.resource);
-                    
-                    if (plentySelected.length < 2) {
-                        plentySelected.push(resourceId);
+            // General trade receive event listeners - need to be added after page load
+            setTimeout(() => {
+                document.querySelectorAll('.trade-receive').forEach(option => {
+                    option.addEventListener('click', function() {
+                        document.querySelectorAll('.trade-receive').forEach(el => el.classList.remove('selected'));
+                        document.querySelectorAll('.port-receive').forEach(el => el.classList.remove('selected'));
                         this.classList.add('selected');
-                    } else {
-                        // Reset selection if already 2 selected
-                        document.querySelectorAll('#plenty-popup .resource-option').forEach(el => el.classList.remove('selected'));
-                        plentySelected = [resourceId];
-                        this.classList.add('selected');
-                    }
-                    
-                    updatePlentyUI();
+                        selectedTradeReceive = parseInt(this.dataset.resource);
+                        selectedPortTrade = null;
+                        updateTradeUI();
+                    });
                 });
-            });
+            }, 0);
 
-            // Close popups when clicking overlay
-            document.getElementById('monopoly-popup').addEventListener('click', function(e) {
-                if (e.target === this) closeMonopolyPopup();
-            });
-
-            document.getElementById('plenty-popup').addEventListener('click', function(e) {
-                if (e.target === this) closePlentyPopup();
-            });
-
-            // Use Development Card buttons - Updated to handle popups
-            document.querySelectorAll('[id^="use-devcard-"]').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    let cardType = parseInt(this.dataset.cardType) + 5;
-                    let player = this.id.includes('opponent') ? 2 : 1;
-                    
-                    // Handle special cards that need resource selection
-                    if (cardType === 8) { // Monopoly
-                        openMonopolyPopup();
-                        return;
-                    } else if (cardType === 9) { // Year of Plenty
-                        openPlentyPopup();
-                        return;
-                    }
-                    
-                    // Handle other cards normally
-                    fetch('/move', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            type: "use_devcard", 
-                            card_id: cardType
-                        })
-                    }).then(resp => resp.text())
-                      .then(msg => {
-                          location.reload();
-                      });
-                    e.stopPropagation();
-                });
+            // Close trade popup when clicking overlay
+            document.getElementById('trade-popup').addEventListener('click', function(e) {
+                if (e.target === this) closeTradePopup();
             });
             </script>
         </body>
