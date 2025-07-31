@@ -22,7 +22,7 @@ function validate(board::Board2P, move::Move)::Bool
             @warn "Trade cannot be made with the same resource type."
             return false
         end
-        
+
         if !can_afford(player, source, trade_amount)
             @warn "Player cannot afford the trade: $(trade_amount) of resource $(source) for 1 of resource $(target)."
             return false
@@ -85,7 +85,13 @@ function validate_purchases(board::Board2P, move::Move)::Bool
             if foundation == 0 && !can_afford(player, 2) && initial_phase_ended(player)
                 @warn "Player cannot afford a settlement."
                 return false
-            elseif foundation == 1 && !can_afford(player, 3)
+            end
+
+            if foundation == 0 && !building_has_road(player, building_index) && initial_phase_ended(player)
+                @warn "Player must build the settlement adjacent to a road."
+                return false
+            end
+            if foundation == 1 && !can_afford(player, 3)
                 @warn "Player cannot afford a city."
                 return false
             end
