@@ -112,7 +112,7 @@ function commit_purchases(board::Board2P, buy::Vector{UInt8})::UInt8
             end
             last_road = purchase & 0b01111111
             set_road(player, last_road) # road index
-            
+            update_longest_road(board.dynamic, player)
             continue
         end
 
@@ -141,20 +141,31 @@ function commit_card_play(board::Board2P, play::UInt8)
         return # no card played
     elseif play >> 7 == 1 # Knight
         tile_id::Int8 = play & 0b00011111
-        if get_robber_position(board.dynamic.bank) != 0
+        robber_position::Int8 = get_robber_position(board.dynamic.bank)
+        if robber_position != 0
             increase_cards(player, 6, -1) # spend knight card
         end
+        if tile_id == 0 || robber_position != 0
+            increment_army(board.dynamic, player)
+            unready_all_devcards(player) # play may only play one card per turn
+        end
         set_robber_position(board.dynamic.bank, tile_id)
-    elseif play == 0b00010000 # Road
+        
+    elseif play == 0b00010000 # Road is handled in commit
+        unready_all_devcards(player) # play may only play one card per turn
     elseif play >> 5 == 1 # Monopoly
         increase_cards(player, 8, -1)
         monopoly_steal(player, get_other_player(board.dynamic), play & 0b00000111)
+
+        unready_all_devcards(player) # play may only play one card per turn
     elseif play >> 6 == 1 # Plenty
         increase_cards(player, 9, -1)
         increase_cards(player, play & 0b00000111, 1) # resource1
         increase_cards(player, (play & 0b00111000) >> 3, 1) # resource2
+
+        unready_all_devcards(player) # play may only play one card per turn
     else
         error("Unknown card play type: $(play)")
     end
-    unready_all_devcards(player) # play may only play one card per turn
+    
 end

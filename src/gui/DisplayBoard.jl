@@ -55,6 +55,13 @@ function display!(board::Board2P; launch_server::Bool=true)
                 $(join([ "<li><span>$(card_names[i])</span><span>$(card_amounts[i])</span></li>" for i in 1:5 ], "\n"))
             </ul>
         </div>
+        <div class="section">
+            <ul class="card-list">
+                <li><span>Victory Points</span><span>$(count_victory_points(player))</span></li>
+                <li><span>Army Size</span><span>$(get_army_size(player))</span></li>
+                <li><span>Longest Road</span><span>$(get_longest_road(player))</span></li>
+            </ul>
+        </div>
         $use_buttons_html
     </div>
     """
@@ -78,6 +85,13 @@ function display!(board::Board2P; launch_server::Bool=true)
         <div class="section">
             <ul class="card-list">
                 $(join([ "<li><span>$(card_names[i])</span><span>$(opponent_card_amounts[i])</span></li>" for i in 1:4 ], "\n"))
+            </ul>
+        </div>
+        <div class="section">
+            <ul class="card-list">
+                <li><span>Victory Points</span><span>$(count_victory_points(opponent))</span></li>
+                <li><span>Army Size</span><span>$(get_army_size(opponent))</span></li>
+                <li><span>Longest Road</span><span>$(get_longest_road(opponent))</span></li>
             </ul>
         </div>
         $opponent_use_buttons_html
@@ -127,6 +141,10 @@ function display!(board::Board2P; launch_server::Bool=true)
             push!(flags, ("$(port_names[port_id])", has_port(player, port_id)))
         end
         
+        # Special achievements
+        push!(flags, ("Has Longest Road", has_longest_road(player)))
+        push!(flags, ("Has Largest Army", has_largest_army(player)))
+        
         return flags
     end
 
@@ -161,6 +179,7 @@ function display!(board::Board2P; launch_server::Bool=true)
                         $(join(["<div>$(flag[1]): <span class=\"flag-$(flag[2] ? "true" : "false")\">$(flag[2])</span></div>" for flag in get_debug_flags(player)], "\n"))
                         <div>Resources: Wood=$(get_card_amount(player, 1)), Brick=$(get_card_amount(player, 2)), Sheep=$(get_card_amount(player, 3)), Wheat=$(get_card_amount(player, 4)), Ore=$(get_card_amount(player, 5))</div>
                         <div>Buildings: Settlements=$(count_settlements(player)), Cities=$(count_cities(player)), Roads=$(count_roads(player))</div>
+                        <div>Victory Points: $(count_victory_points(player)), Army Size: $(get_army_size(player)), Longest Road: $(get_longest_road(player))</div>
                     </div>
                 </div>
                 
@@ -173,6 +192,7 @@ function display!(board::Board2P; launch_server::Bool=true)
                         $(join(["<div>$(flag[1]): <span class=\"flag-$(flag[2] ? "true" : "false")\">$(flag[2])</span></div>" for flag in get_debug_flags(opponent)], "\n"))
                         <div>Resources: Wood=$(get_card_amount(opponent, 1)), Brick=$(get_card_amount(opponent, 2)), Sheep=$(get_card_amount(opponent, 3)), Wheat=$(get_card_amount(opponent, 4)), Ore=$(get_card_amount(opponent, 5))</div>
                         <div>Buildings: Settlements=$(count_settlements(opponent)), Cities=$(count_cities(opponent)), Roads=$(count_roads(opponent))</div>
+                        <div>Victory Points: $(count_victory_points(opponent)), Army Size: $(get_army_size(opponent)), Longest Road: $(get_longest_road(opponent))</div>
                     </div>
                 </div>
             </div>
@@ -182,10 +202,6 @@ function display!(board::Board2P; launch_server::Bool=true)
             <h3>Bitboard Masks & Constants</h3>
             <div class="debug-bitboard">Building Bitboard Mask: $(format_bitboard(building_bitboard_mask))</div>
             <div class="debug-bitboard">Road Bitboard Mask: $(format_bitboard(road_bitboard_mask))</div>
-            <div class="debug-flags">
-                <div>Starting Indices: Resources=$(starting_index[1]), Free Road=$(starting_index[2]), Initial Phase=$(starting_index[3]), Force Road=$(starting_index[4]), DevCard Ready=$(starting_index[5])</div>
-                <div>Card Bit Usages: $(join(["$(i)=$(card_bit_usages[i])" for i in 1:10], ", "))</div>
-            </div>
         </div>
 
         <div class="debug-instruction">Press Ctrl+D to close | Click × to close</div>
@@ -723,6 +739,172 @@ function display!(board::Board2P; launch_server::Bool=true)
             // Close trade popup when clicking overlay
             document.getElementById('trade-popup').addEventListener('click', function(e) {
                 if (e.target === this) closeTradePopup();
+            });
+
+            // Development card use button handlers
+            document.querySelectorAll('.use-dev-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const cardType = parseInt(this.dataset.cardType);
+                    
+                    if (cardType === 1) { // Knight
+                        fetch('/move', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({type: "use_devcard", card_id: 6})
+                        }).then(resp => resp.text())
+                          .then(msg => {
+                              location.reload();
+                          });
+                    } else if (cardType === 2) { // Road Building
+                        fetch('/move', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({type: "use_devcard", card_id: 7})
+                        }).then(resp => resp.text())
+                          .then(msg => {
+                              location.reload();
+                          });
+                    } else if (cardType === 3) { // Monopoly
+                        openMonopolyPopup();
+                    } else if (cardType === 4) { // Year of Plenty
+                        openPlentyPopup();
+                    }
+                    e.stopPropagation();
+                });
+            });
+
+            // Monopoly popup functionality
+            let selectedMonopolyResource = null;
+
+            function openMonopolyPopup() {
+                document.getElementById('monopoly-popup').classList.add('show');
+                selectedMonopolyResource = null;
+                document.querySelectorAll('#monopoly-popup .resource-option').forEach(el => el.classList.remove('selected'));
+                document.getElementById('monopoly-confirm').disabled = true;
+            }
+
+            function closeMonopolyPopup() {
+                document.getElementById('monopoly-popup').classList.remove('show');
+                selectedMonopolyResource = null;
+            }
+
+            // Monopoly resource selection
+            document.querySelectorAll('#monopoly-popup .resource-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('#monopoly-popup .resource-option').forEach(el => el.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedMonopolyResource = parseInt(this.dataset.resource);
+                    document.getElementById('monopoly-confirm').disabled = false;
+                });
+            });
+
+            // Monopoly popup buttons
+            document.getElementById('monopoly-cancel').addEventListener('click', function(e) {
+                closeMonopolyPopup();
+                e.stopPropagation();
+            });
+
+            document.getElementById('monopoly-confirm').addEventListener('click', function(e) {
+                if (selectedMonopolyResource) {
+                    fetch('/move', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            type: "use_devcard", 
+                            card_id: 8,
+                            resource1: selectedMonopolyResource
+                        })
+                    }).then(resp => resp.text())
+                      .then(msg => {
+                          location.reload();
+                      });
+                }
+                closeMonopolyPopup();
+                e.stopPropagation();
+            });
+
+            // Close monopoly popup when clicking overlay
+            document.getElementById('monopoly-popup').addEventListener('click', function(e) {
+                if (e.target === this) closeMonopolyPopup();
+            });
+
+            // Year of Plenty popup functionality
+            let selectedPlentyResources = [];
+
+            function openPlentyPopup() {
+                document.getElementById('plenty-popup').classList.add('show');
+                selectedPlentyResources = [];
+                document.querySelectorAll('#plenty-popup .resource-option').forEach(el => el.classList.remove('selected'));
+                document.getElementById('plenty-confirm').disabled = true;
+                updatePlentyUI();
+            }
+
+            function closePlentyPopup() {
+                document.getElementById('plenty-popup').classList.remove('show');
+                selectedPlentyResources = [];
+            }
+
+            function updatePlentyUI() {
+                const counter = document.getElementById('plenty-counter');
+                const confirmBtn = document.getElementById('plenty-confirm');
+                const selectedDiv = document.getElementById('plenty-selected');
+                const selectionText = document.getElementById('plenty-selection-text');
+                
+                const remaining = 2 - selectedPlentyResources.length;
+                counter.textContent = 'Select ' + remaining + ' more resource' + (remaining !== 1 ? 's' : '') + ' (can be the same type)';
+                
+                if (selectedPlentyResources.length === 2) {
+                    confirmBtn.disabled = false;
+                    const resourceNames = ['', 'Wood', 'Brick', 'Sheep', 'Wheat', 'Ore'];
+                    const names = selectedPlentyResources.map(r => resourceNames[r]);
+                    selectionText.textContent = names.join(', ');
+                    selectedDiv.style.display = 'block';
+                } else {
+                    confirmBtn.disabled = true;
+                    selectedDiv.style.display = 'none';
+                }
+            }
+
+            // Year of Plenty resource selection
+            document.querySelectorAll('#plenty-popup .resource-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    if (selectedPlentyResources.length < 2) {
+                        const resource = parseInt(this.dataset.resource);
+                        selectedPlentyResources.push(resource);
+                        updatePlentyUI();
+                    }
+                });
+            });
+
+            // Year of Plenty popup buttons
+            document.getElementById('plenty-cancel').addEventListener('click', function(e) {
+                closePlentyPopup();
+                e.stopPropagation();
+            });
+
+            document.getElementById('plenty-confirm').addEventListener('click', function(e) {
+                if (selectedPlentyResources.length === 2) {
+                    fetch('/move', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            type: "use_devcard", 
+                            card_id: 9,
+                            resource1: selectedPlentyResources[0],
+                            resource2: selectedPlentyResources[1]
+                        })
+                    }).then(resp => resp.text())
+                      .then(msg => {
+                          location.reload();
+                      });
+                }
+                closePlentyPopup();
+                e.stopPropagation();
+            });
+
+            // Close plenty popup when clicking overlay
+            document.getElementById('plenty-popup').addEventListener('click', function(e) {
+                if (e.target === this) closePlentyPopup();
             });
             </script>
         </body>

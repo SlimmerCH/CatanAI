@@ -3,12 +3,33 @@
 include("BitOperations.jl")
 include("BoardGraph.jl")
 
-const starting_index::NTuple{5, Int8} = (
-    73,     # resources and cards   |   road_bitboard
-    55,     # first free road           |   settlement_bitboard
-    56,      # initial_phase_ended   |   settlement_bitboard
-    57,       # force_road          |   settlement_bitboard
-    58      # devcard ready to play (58 - 61)   |   settlement_bitboard
+const settlement_indexing::Tuple = (
+    1,      # settlement bitboard (1 - 54)
+    55,     # first free road
+    56,     # initial_phase_ended
+    57,     # force_road
+    58,      # devcard ready to play (58 - 61)
+    62,      # has longest road 
+    63       # has largest army
+)
+
+const city_indexing::Tuple = (
+    1,     # city bitboard (1 - 54)
+    55,    # longest road (55 - 58)
+    59     # army size (59 - 61)
+)
+
+const road_indexing::Tuple = (
+    1,     # road bitboard (1 - 72)
+    73     # resources and cards (73 - 106)
+    
+)
+
+const bank_indexing::Tuple = (
+    1,     # devcard 1 - 13
+    14,    # player turn
+    15,    # robber position (15 - 19)
+    20,    # robber pending placement
 )
 
 const max_card_supplies::NTuple{10, Int8} = (
@@ -52,6 +73,168 @@ end
 # 3 - sheep
 # 4 - wheat
 # 5 - ore
+
+function is_robber_pending(bank::Bank)::Bool
+    return check_bit(bank.bitboard, bank_indexing[4])
+end
+
+function update_longest_road(dynamicboard::DynamicBoard2P, player::PlayerStats)
+    @info "Updating longest road for player."
+    other_player::PlayerStats = player == dynamicboard.p1 ? dynamicboard.p2 : dynamicboard.p1
+
+    road_length = compute_longest_road(player)
+    @show road_length
+
+    if road_length >= 5 && get_longest_road(other_player) < road_length
+        player.settlement_bitboard = set_bit(player.settlement_bitboard, settlement_indexing[6])  
+        other_player.settlement_bitboard = clear_bit(other_player.settlement_bitboard, settlement_indexing[6])
+    end
+    
+    set_longest_road(player, road_length)
+    @show get_longest_road(player)
+end
+
+function get_longest_road(player::PlayerStats)
+    return read_binary_range(player.city_bitboard, city_indexing[2], city_indexing[2] + 3)
+end
+
+function set_longest_road(player::PlayerStats, value::Integer)
+    player.city_bitboard = write_binary_range(player.city_bitboard, city_indexing[2], city_indexing[2] + 3, value)
+end
+
+function compute_longest_road(player::PlayerStats)::Int8
+    max_length::Int8 = 0
+    
+    # Stack to hold (current_node, visited_roads, current_length)
+    stack::Vector{Tuple{Int8, UInt128, Int8}} = Vector{Tuple{Int8, UInt128, Int8}}()
+    
+    # Start from each node that has a road
+    for start_node::Int8 in 1:54
+        # Check if this node has any roads owned by the player
+        node_edges::NTuple{3, Int8} = node_to_edge[start_node]
+        has_road_at_node = false
+        for edge::Int8 in node_edges
+            if edge != 0 && check_bit(player.road_bitboard, edge)
+                has_road_at_node = true
+                break
+            end
+        end
+        
+        if !has_road_at_node
+            continue
+        end
+        
+        # Initialize stack with starting node
+        empty!(stack)
+        push!(stack, (start_node, UInt128(0), Int8(0)))
+        
+        while !isempty(stack)
+            current_node, visited_roads, length = pop!(stack)
+            max_length = max(max_length, length)
+            
+            # Get adjacent nodes
+            neighbors::NTuple{3, Int8} = node_to_node[current_node]
+            for next_node::Int8 in neighbors
+                if next_node == 0  # No neighbor
+                    continue
+                end
+                
+                # Find the road connecting current_node to next_node
+                connecting_road::Int8 = 0
+                current_edges::NTuple{3, Int8} = node_to_edge[current_node]
+                next_edges::NTuple{3, Int8} = node_to_edge[next_node]
+                
+                for edge1::Int8 in current_edges
+                    if edge1 == 0
+                        continue
+                    end
+                    for edge2::Int8 in next_edges
+                        if edge1 == edge2
+                            connecting_road = edge1
+                            break
+                        end
+                    end
+                    if connecting_road != 0
+                        break
+                    end
+                end
+                
+                if connecting_road == 0  # No connecting road found
+                    continue
+                end
+                if check_bit(player.road_bitboard, connecting_road) == 0  # Player doesn't own this road
+                    continue
+                end
+                if (visited_roads >> (connecting_road - 1)) & 1 == 1  # Already used this road
+                    continue
+                end
+                
+                # Add to stack with updated visited roads and length
+                new_visited = visited_roads | (UInt128(1) << (connecting_road - 1))
+                push!(stack, (next_node, new_visited, length + 1))
+            end
+        end
+    end
+    
+    return max_length
+end
+
+function get_army_size(player::PlayerStats)::Int8
+    return read_binary_range(player.city_bitboard, city_indexing[3], city_indexing[3] + 2)
+end
+
+function has_longest_road(player::PlayerStats)::Bool
+    if count_roads(player) < 5
+        return false
+    end
+    return check_bit(player.settlement_bitboard, settlement_indexing[6])
+end
+
+function has_largest_army(player::PlayerStats)::Bool
+    return check_bit(player.settlement_bitboard, settlement_indexing[7])
+end
+
+function increment_army(dynamicboard::DynamicBoard2P, player::PlayerStats)
+    other_player::PlayerStats = player == dynamicboard.p1 ? dynamicboard.p2 : dynamicboard.p1
+    new_army = get_army_size(player) + 1
+    if new_army >= 7
+        return
+    end
+    if new_army >= 3 && get_army_size(other_player) < new_army
+        player.settlement_bitboard = set_bit(player.settlement_bitboard, settlement_indexing[7])  
+        other_player.settlement_bitboard = clear_bit(other_player.settlement_bitboard, settlement_indexing[7])
+    end
+
+    player.city_bitboard = write_binary_range(player.city_bitboard, city_indexing[3], city_indexing[3] + 2, new_army)
+    
+end
+
+function check_winner(dynamic::DynamicBoard2P)::Int8
+    p1_victory_points::Int8 = count_victory_points(dynamic.p1)
+    p2_victory_points::Int8 = count_victory_points(dynamic.p2)
+
+    if p1_victory_points >= 10
+        return 1
+    elseif p2_victory_points >= 10
+        return 2
+    end
+
+    return 0
+end
+
+function count_victory_points(player::PlayerStats)::Int8
+    sum::Int8 = 0
+    sum += count_settlements(player)
+    sum += count_cities(player) * 2 # each city is worth 2 points
+    sum += get_card_amount(player, 10) # point cards
+    if has_longest_road(player)
+        sum += 2 # longest road bonus
+    end
+    if has_largest_army(player)
+        sum += 2 # largest army bonus
+    end
+    return sum
+end
 
 function get_trade_offer(player::PlayerStats, source_resource::Integer)
     if source_resource < 1 || source_resource > 5
@@ -101,45 +284,45 @@ end
 
 function unready_all_devcards(player::PlayerStats)
     for i::Int8 in 6:9
-        player.settlement_bitboard = clear_bit(player.settlement_bitboard, starting_index[5] + i - 6)
+        player.settlement_bitboard = clear_bit(player.settlement_bitboard, settlement_indexing[5] + i - 6)
     end
 end
 
 function is_first_free_road_built(player::PlayerStats)::Bool
-    return check_bit(player.settlement_bitboard, starting_index[2])
+    return check_bit(player.settlement_bitboard, settlement_indexing[2])
 end
 
 function set_first_free_road_built(player::PlayerStats)
-    player.settlement_bitboard = set_bit(player.settlement_bitboard, starting_index[2])
+    player.settlement_bitboard = set_bit(player.settlement_bitboard, settlement_indexing[2])
 end
 
 function clear_first_free_road_built(player::PlayerStats)
-    player.settlement_bitboard = clear_bit(player.settlement_bitboard, starting_index[2])
+    player.settlement_bitboard = clear_bit(player.settlement_bitboard, settlement_indexing[2])
 end
 
 function is_devcard_ready(player::PlayerStats, card_id::Integer)::Bool
     if card_id < 6 || card_id > 9
         throw(ArgumentError("Invalid card ID: $(card_id)"))
     end
-    return check_bit(player.settlement_bitboard, starting_index[5]+ card_id - 6)
+    return check_bit(player.settlement_bitboard, settlement_indexing[5]+ card_id - 6)
 end
 
 function set_devcard_ready(player::PlayerStats, card_id::Integer)
     if card_id < 6 || card_id > 9
         throw(ArgumentError("Invalid card ID: $(card_id)"))
     end
-    player.settlement_bitboard = set_bit(player.settlement_bitboard, starting_index[5]+ card_id - 6)
+    player.settlement_bitboard = set_bit(player.settlement_bitboard, settlement_indexing[5]+ card_id - 6)
 end
 
 function get_robber_position(bank::Bank)::Int8
-    return read_binary_range(bank.bitboard, 15, 19)
+    return read_binary_range(bank.bitboard, bank_indexing[3], bank_indexing[3] + 4)
 end
 
 function set_robber_position(bank::Bank, tile_id::Integer)
     if tile_id < 0 || tile_id > 19 # we allow 0 for pending placement after a knight card
         throw(ArgumentError("Invalid tile ID: $(tile_id)"))
     end
-    bank.bitboard = write_binary_range(bank.bitboard, 15, 19, tile_id)
+    bank.bitboard = write_binary_range(bank.bitboard, bank_indexing[3], bank_indexing[3]+4, tile_id)
 end
 
 function reset_robber_position(static::StaticBoard, dynamic::DynamicBoard2P)
@@ -153,23 +336,23 @@ function reset_robber_position(static::StaticBoard, dynamic::DynamicBoard2P)
 end
 
 function is_second_free_road(player::PlayerStats)::Bool
-    return check_bit(player.settlement_bitboard, starting_index[2])
+    return check_bit(player.settlement_bitboard, settlement_indexing[2])
 end
 
 function set_second_free_road(player::PlayerStats)
-    player.settlement_bitboard = set_bit(player.settlement_bitboard, starting_index[2])
+    player.settlement_bitboard = set_bit(player.settlement_bitboard, settlement_indexing[2])
 end
 
 function is_road_forced(player::PlayerStats)::Bool # in the initial phase after the settlement
-    return check_bit(player.settlement_bitboard, starting_index[4])
+    return check_bit(player.settlement_bitboard, settlement_indexing[4])
 end
 
 function force_road(player::PlayerStats)
-    player.settlement_bitboard = set_bit(player.settlement_bitboard, starting_index[4])
+    player.settlement_bitboard = set_bit(player.settlement_bitboard, settlement_indexing[4])
 end
 
 function clear_force_road(player::PlayerStats)
-    player.settlement_bitboard = clear_bit(player.settlement_bitboard, starting_index[4])
+    player.settlement_bitboard = clear_bit(player.settlement_bitboard, settlement_indexing[4])
 end
 
 function building_has_road(player::PlayerStats, building_index::UInt8)::Bool
@@ -203,11 +386,11 @@ end
 
 
 function get_player_turn(dynamicboard::DynamicBoard2P)::Bool
-    return dynamicboard.bank.bitboard(14)
+    return dynamicboard.bank.bitboard(bank_indexing[2]) == 1
 end
 
 function flip_player_turn(dynamicboard::DynamicBoard2P)
-    dynamicboard.bank.bitboard = flip_bit(dynamicboard.bank.bitboard, 14)
+    dynamicboard.bank.bitboard = flip_bit(dynamicboard.bank.bitboard, bank_indexing[2])
 end
 
 function get_next_player(dynamicboard::DynamicBoard2P)::PlayerStats
@@ -227,7 +410,7 @@ function get_other_player(dynamicboard::DynamicBoard2P)::PlayerStats
 end
 
 function get_card_amount(player::PlayerStats, card_id::Integer)::Int8
-    index::Int8 = starting_index[1] + card_entry_offsets[card_id]
+    index::Int8 = road_indexing[2] + card_entry_offsets[card_id]
     return read_binary_range(
         player.road_bitboard,
         index,
@@ -249,7 +432,7 @@ end
 
 
 function set_card_amount(player::PlayerStats, card_id::Integer, value::Integer)
-    index::Int8 = starting_index[1] + card_entry_offsets[card_id]
+    index::Int8 = road_indexing[2] + card_entry_offsets[card_id]
     player.road_bitboard = write_binary_range(
         player.road_bitboard,
         index,
@@ -457,11 +640,11 @@ function count_roads(player::PlayerStats)::Int8
 end
 
 function initial_phase_ended(player::PlayerStats)::Bool
-    return check_bit(player.settlement_bitboard, starting_index[3])
+    return check_bit(player.settlement_bitboard, settlement_indexing[3])
 end
 
 function end_initial_phase(player::PlayerStats)
-    player.settlement_bitboard = set_bit(player.settlement_bitboard, starting_index[3])
+    player.settlement_bitboard = set_bit(player.settlement_bitboard, settlement_indexing[3])
 end
 
 function devcard_distribution(bank::Bank)::Vector{Float16}
