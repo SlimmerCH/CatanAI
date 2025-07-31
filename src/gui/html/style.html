@@ -4,23 +4,35 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-    :root {
+:root {
         --r1: calc(var(--r2) * 2/sqrt(3));
-        --r2: 10%;
-        --gap:1.5%;
+        --r2: 60px;
+        --gap: 9px;
         --smgap: calc(sqrt(3)/2*var(--gap));
-        --p1-color: #00a4ff;
-        --p2-color: #d9300d;
+        --p1-color: #006cff;    
+        --p2-color: #ff1146;
+        --color-wood: hsl(129 22% 30% / 1);
+        --color-brick: hsl(12 65% 61% / 1);
+        --color-sheep: hsl(90 50% 58% / 1);
+        --color-wheat: hsl(51 55% 63% / 1);
+        --color-ore: hsl(193 10% 60% / 1);
+        --color-desert: hsl(52 20% 72% / 1);
+        --color-neutral-port: hsl(42deg 3.75% 21.55%);
     }
+
+    * {
+        box-sizing: border-box;
+    }
+
     body {
         display: flex;
         flex-direction: column;
         align-items: center;
         height: 100vh;
-        justify-content: bottom;
         margin: 0;
         margin-left: 18vw;
         margin-right: 18vw;
+        font-family: 'Quicksand';
     }
     .tiles-grid {
         position: relative;
@@ -28,6 +40,113 @@ html, body {
         height: 80vmin;
         width: 80vmin;
     }
+
+    .port {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 2px #fffC solid;
+        padding: 5px;
+        fill: #FFF5;
+        stroke: #fff;
+        stroke-width: 24px;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 16px;
+        translate: -50% -50%;
+        --distance: calc(50% + var(--gap));
+        filter: saturate(0.9);
+    }
+    
+    .port1 {
+        top: calc(50% - 7.5 * var(--r1) / 2 - 2 * var(--smgap));
+        left: calc(50% - 2.5 * var(--r2) - 2 * var(--gap) / 2);
+        transform: translate(calc(-1 * var(--distance) * cos(60deg)), calc(-1 * var(--distance) * sin(60deg)));
+    }
+
+    .port2 {
+        top: calc(50% - 7.5 * var(--r1) / 2 - 2 * var(--smgap));
+        left: calc(50% + 0.5 * var(--r2));
+        transform: translate(calc(var(--distance) * cos(60deg)), calc(-1 * var(--distance) * sin(60deg)));
+    }
+
+    .port3 {
+        top: calc(50% - 4.5 * var(--r1) / 2 - 2 * var(--smgap) / 2);
+        left: calc(50% + 3.5 * var(--r2) + 3 * var(--gap) / 2);
+        transform: translate(calc(var(--distance) * cos(60deg)), calc(-1 * var(--distance) * sin(60deg)));
+    }
+
+    .port4 {
+        top: 50%;
+        left: calc(50% + 5 * var(--r2) + 4 * var(--gap) / 2);
+        transform: translate(var(--distance), 0);
+    }
+
+    .port5 {
+        top: calc(50% + 4.5 * var(--r1) / 2 + 2 * var(--smgap) / 2);
+        left: calc(50% + 3.5 * var(--r2) + 3 * var(--gap) / 2);
+        transform: translate(calc(var(--distance) * cos(60deg)), calc(1 * var(--distance) * sin(60deg)));
+    }
+
+    .port6 {
+        top: calc(50% + 7.5 * var(--r1) / 2 + 2 * var(--smgap));
+        left: calc(50% + var(--r2) / 2);
+        transform: translate(calc(var(--distance) * cos(60deg)), calc(1 * var(--distance) * sin(60deg)));
+    }
+
+    .port7 {
+        top: calc(50% + 7.5 * var(--r1) / 2 + 2 * var(--smgap));
+        left: calc(50% - 2.5 * var(--r2) - 2 * var(--gap) / 2);
+        transform: translate(calc(-1 * var(--distance) * cos(60deg)), calc(var(--distance) * sin(60deg)));
+    }
+
+    .port8 {
+            top: calc(50% + 3 * var(--r1) / 2 + 2 * var(--smgap) / 2);
+        left: calc(50% - 4 * var(--r2) - 3 * var(--gap) / 2);
+        transform: translate(calc(-1 * var(--distance)), 0);
+    }
+
+    .port9 {
+        top: calc(50% - 3 * var(--r1) / 2 - 2 * var(--smgap) / 2);
+        left: calc(50% - 4 * var(--r2) - 3 * var(--gap) / 2);
+        transform: translate(calc(-1 * var(--distance)), 0);
+    }
+
+    .port[resource="1"]::after, .port[resource="2"]::after, .port[resource="3"]::after,
+    .port[resource="4"]::after, .port[resource="5"]::after {
+        content: '\2022\2022';
+        line-height: 0.8;
+    }
+
+    .port[resource="6"]::after {
+        content: '\2022\2022\2022';
+        line-height: 0.8;
+        
+    }
+
+    .port[resource="6"] {
+        background-color: var(--color-neutral-port);
+    }
+    .port[resource="1"] {
+        background-color: var(--color-wood);
+    }
+    .port[resource="2"] {
+        background-color: var(--color-brick);
+    }
+    .port[resource="3"] {
+        background-color: var(--color-sheep);
+    }
+    .port[resource="4"] {
+        background-color: var(--color-wheat);
+    }
+    .port[resource="5"] {
+        background-color: var(--color-ore);
+    }
+
     .hex {
         position: absolute;
         height: calc( 2* var(--r1));
@@ -36,22 +155,22 @@ html, body {
     }
 
     .hex[resource="0"] {
-        fill: #615338;
+        fill: var(--color-desert);
     }
     .hex[resource="1"] {
-        fill: #0c5517;
+        fill: var(--color-wood);
     }
     .hex[resource="2"] {
-        fill: #e46f52;
+        fill: var(--color-brick);
     }
     .hex[resource="3"] {
-        fill: #94d752;
+        fill: var(--color-sheep);
     }
     .hex[resource="4"] {
-        fill: #ddcc66;
+        fill: var(--color-wheat);
     }
     .hex[resource="5"] {
-        fill: #7d9ea7;
+        fill: var(--color-ore);
     }
 
     .ghost {
@@ -146,14 +265,15 @@ html, body {
         font-size: 4vmin;
         transform: translate(-50%, -20%);
         border-radius: 35%;
-        height: 6.8%;
-        width: 8.5%;
+        width: 8.8%;
+        aspect-ratio: 1;
         background-color: #f7f7f7;
         justify-content: center;
         align-items: center;
         padding-bottom: 1.2%;
-        box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
         user-select: none;
+        font-weight: 500;
+        border-bottom: 1px #cccccc solid;
     }
     .number-token[number="2"]:after, .number-token[number="12"]:after{
         font-weight: normal;
@@ -185,6 +305,7 @@ html, body {
         color: rgb(225 28 28)
     }
     .building {
+        box-sizing: content-box;
         position: absolute;
         z-index: 1;
         height: 4%;

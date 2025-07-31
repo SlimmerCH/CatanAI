@@ -7,6 +7,7 @@ const house_path::String = """<path d="M62.79,29.172l-28-28C34.009,0.391,32.985,
 const building_path::String = """<path d="M56,0H8C5.789,0,4,1.789,4,4v56c0,2.211,1.789,4,4,4h20V48h8v16h20c2.211,0,4-1.789,4-4V4C60,1.789,58.211,0,56,0z M28,40h-8v-8h8V40z M28,24h-8v-8h8V24z M44,40h-8v-8h8V40z M44,24h-8v-8h8V24z"/>"""
 const license::String = """<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/SlimmerCH/CatanAI">CatanAI.jl</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/SlimmerCH">Selim Bucher</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0<img class="ic ic1" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img class="ic" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img class="ic" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1" alt=""><img class="ic" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p>"""
 const ghost_path::String = """<path d="M168.1 531.1L156.9 540.1C153.7 542.6 149.8 544 145.8 544C136 544 128 536 128 526.2L128 256C128 150 214 64 320 64C426 64 512 150 512 256L512 526.2C512 536 504 544 494.2 544C490.2 544 486.3 542.6 483.1 540.1L471.9 531.1C458.5 520.4 439.1 522.1 427.8 535L397.3 570C394 573.8 389.1 576 384 576C378.9 576 374.1 573.8 370.7 570L344.1 539.5C331.4 524.9 308.7 524.9 295.9 539.5L269.3 570C266 573.8 261.1 576 256 576C250.9 576 246.1 573.8 242.7 570L212.2 535C200.9 522.1 181.5 520.4 168.1 531.1zM288 256C288 238.3 273.7 224 256 224C238.3 224 224 238.3 224 256C224 273.7 238.3 288 256 288C273.7 288 288 273.7 288 256zM384 288C401.7 288 416 273.7 416 256C416 238.3 401.7 224 384 224C366.3 224 352 238.3 352 256C352 273.7 366.3 288 384 288z"/>"""
+const harbor_svg::String ="""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M320 128C302.3 128 288 142.3 288 160C288 177.7 302.3 192 320 192C337.7 192 352 177.7 352 160C352 142.3 337.7 128 320 128zM224 160C224 107 267 64 320 64C373 64 416 107 416 160C416 201.8 389.3 237.4 352 250.5L352 508.4C414.9 494.1 462.2 438.7 463.9 371.9L447.8 386C437.8 394.7 422.7 393.7 413.9 383.7C405.1 373.7 406.2 358.6 416.2 349.8L480.2 293.8C489.2 285.9 502.8 285.9 511.8 293.8L575.8 349.8C585.8 358.5 586.8 373.7 578.1 383.7C569.4 393.7 554.2 394.7 544.2 386L528 371.9C525.9 485 433.6 576 320 576C206.4 576 114.1 485 112 371.9L95.8 386.1C85.8 394.8 70.7 393.8 61.9 383.8C53.1 373.8 54.2 358.7 64.2 349.9L128.2 293.9C137.2 286 150.8 286 159.8 293.9L223.8 349.9C233.8 358.6 234.8 373.8 226.1 383.8C217.4 393.8 202.2 394.8 192.2 386.1L176.1 372C177.9 438.8 225.2 494.2 288 508.5L288 250.6C250.7 237.4 224 201.9 224 160.1z"/></svg>"""
 
 function display!(board::Board2P; launch_server::Bool=true)
     LocalServer.board_ref = board  # Set the board reference automatically
@@ -263,7 +264,9 @@ function display!(board::Board2P; launch_server::Bool=true)
         <html>
         <head>
         <meta charset="UTF-8">
-        <script src="https://kit.fontawesome.com/8788d9e4e4.js" crossorigin="anonymous"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
         $(read(joinpath(@__DIR__, "html", "style.html"), String))
         </head>
         <body>
@@ -274,15 +277,16 @@ function display!(board::Board2P; launch_server::Bool=true)
             $popup_html
             <div class='tiles-grid'>
             <svg viewBox="0 0 640 640" id="ghost" class="ghost h$(get_robber_position(board.dynamic.bank))">$ghost_path</svg>
+            $(join(["<div class='port port$i' resource='$r'>$harbor_svg</div>" for (i,r) in enumerate(board.static.ports)], "\n"))
             $(join(["<svg resource='$(board.static.tile_to_resource[i])' class='hex h$i' viewBox='0 0 512 512' data-hex='$i'>$smooth_hexagon_path</svg>" for i in 1:19], "\n"))
             $(join(["<div number='$(board.static.tile_to_number[i])' class='number-token h$i' data-number='$i'>$(board.static.tile_to_number[i])</div>" for i in 1:19 if board.static.tile_to_number[i] != 0], "\n"))
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1' data-settlement='1' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if board.dynamic.p1.settlement_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2' data-settlement='2' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if board.dynamic.p2.settlement_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1' data-settlement='1' data-building='1' data-index='$i'>$building_path</svg>" for i in 1:54 if board.dynamic.p1.city_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2' data-settlement='2' data-building='1' data-index='$i'>$building_path</svg>" for i in 1:54 if board.dynamic.p2.city_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1' data-owner='1' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if board.dynamic.p1.settlement_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2' data-owner='2' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if board.dynamic.p2.settlement_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p1' data-owner='1' data-building='1' data-index='$i'>$building_path</svg>" for i in 1:54 if board.dynamic.p1.city_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i p2' data-owner='2' data-building='1' data-index='$i'>$building_path</svg>" for i in 1:54 if board.dynamic.p2.city_bitboard(i) ], "\n") )
             $(join( [ "<div class='road r$i p1' data-road='1' data-index='$i'></div>" for i in 1:72 if board.dynamic.p1.road_bitboard(i) ], "\n") )
             $(join( [ "<div class='road r$i p2' data-road='2' data-index='$i'></div>" for i in 1:72 if board.dynamic.p2.road_bitboard(i) ], "\n") )
-            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i neutral' data-settlement='0' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if !board.dynamic.p1.settlement_bitboard(i) && !board.dynamic.p2.settlement_bitboard(i) && !board.dynamic.p1.city_bitboard(i) && !board.dynamic.p2.city_bitboard(i) ], "\n") )
+            $(join( [ "<svg viewBox='0 0 64 64' class='building n$i neutral' data-owner='0' data-building='0' data-index='$i'>$house_path</svg>" for i in 1:54 if !board.dynamic.p1.settlement_bitboard(i) && !board.dynamic.p2.settlement_bitboard(i) && !board.dynamic.p1.city_bitboard(i) && !board.dynamic.p2.city_bitboard(i) ], "\n") )
             $(join( [ "<div class='road r$i neutral' data-road='0' data-index='$i'></div>" for i in 1:72 if !board.dynamic.p1.road_bitboard(i) && !board.dynamic.p2.road_bitboard(i) ], "\n") )
             </div>
             <div class="footer">
