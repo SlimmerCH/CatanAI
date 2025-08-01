@@ -78,6 +78,16 @@ function roll_dice(num::Int8, static::StaticBoard, dynamic::DynamicBoard2P)
     if num == 7
         println("Rolled a 7, activating robber.")
         set_robber_position(dynamic.bank, 0) # reset robber position
+
+        flag_discard(dynamic)
+        player::PlayerStats = get_next_player(dynamic)
+
+        while (is_discarding_turn(player) && count_total_resources(player) <= 7)
+            println("Player $(get_player_turn(dynamic)+1) rolled a 7 and has no resources ($(count_total_resources(player))) to discard.")
+            clear_discarding_turn(player)
+            flip_player_turn(dynamic) # end turn after discarding
+            player = get_next_player(dynamic)
+        end
         return
     end
 
@@ -92,7 +102,7 @@ function roll_dice(num::Int8, static::StaticBoard, dynamic::DynamicBoard2P)
             if get_building(dynamic.p1, building_index) == 1
                 increase_cards(dynamic.p1, resource_type, 1)
             elseif get_building(dynamic.p2, building_index) == 1
-                increase_cards(dynamic.p1, resource_type, 1)
+                increase_cards(dynamic.p2, resource_type, 1)
             elseif get_building(dynamic.p1, building_index) == 2
                 increase_cards(dynamic.p1, resource_type, 2)
             elseif get_building(dynamic.p2, building_index) == 2

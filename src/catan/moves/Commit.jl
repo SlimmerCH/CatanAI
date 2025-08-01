@@ -1,7 +1,14 @@
 function commit_and_simulate(board::Board2P, move::Move, end_move::Bool = false)
 
+    is_discard = is_discarding_turn(get_next_player(board.dynamic))
+
     moving_player::PlayerStats = get_next_player(board.dynamic)
     commit(board, move, end_move)
+
+    if is_discard
+        return nothing # no dice roll after discarding
+    end
+
     next_player::PlayerStats = get_next_player(board.dynamic)
 
     for purchase::UInt8 in move.buy
@@ -22,6 +29,7 @@ function commit_and_simulate(board::Board2P, move::Move, end_move::Bool = false)
         end
     end
     last_dice_roll = nothing
+
     if initial_phase_ended(next_player) && end_move
         last_dice_roll = random_dice()
         roll_dice(last_dice_roll, board.static, board.dynamic)
@@ -32,8 +40,7 @@ end
 
 function commit(board::Board2P, move::Move, end_move::Bool = false)
     # we assume that the move is valid
-    println("Committing move.")
-
+    
     player = get_next_player(board.dynamic)
     
     if  move.play == 0b00010000
@@ -41,6 +48,24 @@ function commit(board::Board2P, move::Move, end_move::Bool = false)
         force_road(player) # force road purchases after road building devcard
     end
 
+    if is_discarding_turn(player)
+        for discard::UInt8 in move.trade
+            discard_amount = ((discard & 0b11110000) >> 4)  
+            resource_type = discard & 0b00000111
+            increase_cards(player, resource_type, -discard_amount)
+        end
+
+        clear_discarding_turn(player)
+        flip_player_turn(board.dynamic)
+        player = get_next_player(board.dynamic)
+
+        while (is_discarding_turn(player) && count_total_resources(player) <= 7)
+            clear_discarding_turn(player)
+            flip_player_turn(board.dynamic) # end turn when nothing to discard
+            player = get_next_player(board.dynamic)
+        end
+        return
+    end
     commit_trades(board, move.trade)
     commit_card_play(board, move.play)
     last_road::UInt8 = commit_purchases(board, move.buy)
@@ -76,6 +101,7 @@ end
 
 function commit_trades(board::Board2P, trade::Vector{UInt8})
     player::PlayerStats = get_next_player(board.dynamic)
+
     for trade::UInt8 in trade
         trade_amount = ((trade & 0b11000000) >> 6) + 1
         target = (trade & 0b00111000) >> 3
@@ -125,8 +151,7 @@ function commit_purchases(board::Board2P, buy::Vector{UInt8})::UInt8
         end
 
         if (purchase & 0b11000000) == 0b11000000 # development card
-            println("Buy type devcard")
-            continue
+$            continue
         end
 
         error("Unknown purchase type: $(purchase)")

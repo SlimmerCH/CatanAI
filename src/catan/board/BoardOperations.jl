@@ -10,7 +10,8 @@ const settlement_indexing::Tuple = (
     57,     # force_road
     58,      # devcard ready to play (58 - 61)
     62,      # has longest road 
-    63       # has largest army
+    63,       # has largest army
+    64        # discarding turn
 )
 
 const city_indexing::Tuple = (
@@ -73,6 +74,31 @@ end
 # 3 - sheep
 # 4 - wheat
 # 5 - ore
+
+function flag_discard(dynamic::DynamicBoard2P)
+    set_discarding_turn(dynamic.p1)
+    set_discarding_turn(dynamic.p2)
+end
+
+function is_discarding_turn(player::PlayerStats)::Bool
+    return check_bit(player.settlement_bitboard, settlement_indexing[8])
+end
+
+function set_discarding_turn(player::PlayerStats)
+    player.settlement_bitboard = set_bit(player.settlement_bitboard, settlement_indexing[8])
+end
+
+function clear_discarding_turn(player::PlayerStats)
+    player.settlement_bitboard = clear_bit(player.settlement_bitboard, settlement_indexing[8])
+end
+
+function count_total_resources(player::PlayerStats)::Int8
+    sum = 0
+    for i in 1:5
+        sum += get_card_amount(player, i)
+    end
+    return sum
+end
 
 function is_robber_pending(bank::Bank)::Bool
     return check_bit(bank.bitboard, bank_indexing[4])
@@ -316,6 +342,10 @@ end
 
 function get_robber_position(bank::Bank)::Int8
     return read_binary_range(bank.bitboard, bank_indexing[3], bank_indexing[3] + 4)
+end
+
+function get_robber_position(dynamic::DynamicBoard2P)::Int8
+    return get_robber_position(dynamic.bank)
 end
 
 function set_robber_position(bank::Bank, tile_id::Integer)

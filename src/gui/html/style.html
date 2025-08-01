@@ -628,6 +628,13 @@ html, body {
     .trade-btn:hover {
         background: #d35400;
     }
+
+    .opponent-btn {
+        cursor: not-allowed !important;
+        background: #a0a0a0 !important;
+        color: #d0d0d0 !important;
+    }
+
     .footer {
         font-family: sans-serif;
         display: flex;
@@ -849,7 +856,7 @@ html, body {
         color: #fff;
         border: 1px solid #00ff00;
         border-radius: 10px;
-        z-index: 1000;
+        z-index: 10000;
         font-family: 'Courier New', monospace;
         font-size: 1.2vmin;
         overflow-y: auto;
@@ -1216,5 +1223,9 @@ html, body {
         font-size: 0.95em;
         color: #27ae60;
         border-left: 3px solid #27ae60;
+    }
+
+    #discard-popup .popup-title {
+        color: #c0392b;
     }
 </style>

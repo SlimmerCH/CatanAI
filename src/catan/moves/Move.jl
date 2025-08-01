@@ -1,7 +1,8 @@
 struct Move
     
     # (AAYY YXXX) trade amount (A+1) of resource type (X) with the bank for 1 resource of type (Y) 
-    trade::Vector{UInt8} #
+    # (AAAA 0XXX) discard resource type X, where A is the amount to discard
+    trade::Vector{UInt8}
 
     # (0XXX XXXX) road with id X       
     # (10XX XXXX) building with id X

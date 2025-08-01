@@ -17,10 +17,15 @@ function display!(board::Board2P; launch_server::Bool=true)
     player = board.dynamic.p1
     opponent = board.dynamic.p2
 
+    current_player = get_next_player(board.dynamic)
+
     # Resource names and ids
     resource_names = ["Wood", "Brick", "Sheep", "Wheat", "Ore"]
     resource_amounts = [get_card_amount(player, i) for i in 1:5]
     opponent_resource_amounts = [get_card_amount(opponent, i) for i in 1:5]
+    
+    # Get current player resource amounts for discard popup
+    current_player_resource_amounts = [get_card_amount(current_player, i) for i in 1:5]
 
     # Development card names and ids
     card_names = ["Knight", "Road Building", "Monopoly", "Year of Plenty", "Victory Point"]
@@ -163,6 +168,8 @@ function display!(board::Board2P; launch_server::Bool=true)
                 <div class="debug-bitboard">Bank Bitboard: $(format_bitboard(board.dynamic.bank.bitboard))</div>
                 <div class="debug-flags">
                     <div>Player Turn: <span class="flag-$(get_player_turn(board.dynamic) ? "true" : "false")">$(get_player_turn(board.dynamic) ? "P2" : "P1")</span></div>
+                    <div>P1 Discarding Turn: <span class="flag-$(is_discarding_turn(player) ? "true" : "false")">$(is_discarding_turn(player))</span></div>
+                    <div>P2 Discarding Turn: <span class="flag-$(is_discarding_turn(opponent) ? "true" : "false")">$(is_discarding_turn(opponent))</span></div>
                     <div>Robber Position: <span class="flag-true">Tile $(get_robber_position(board.dynamic.bank))</span></div>
                     <div>Bank Dev Cards: Knight=$(get_card_amount(board.dynamic.bank, 6)), Road=$(get_card_amount(board.dynamic.bank, 7)), Monopoly=$(get_card_amount(board.dynamic.bank, 8)), Plenty=$(get_card_amount(board.dynamic.bank, 9)), Victory=$(get_card_amount(board.dynamic.bank, 10))</div>
                 </div>
@@ -212,6 +219,70 @@ function display!(board::Board2P; launch_server::Bool=true)
 
     # Resource selection popups
     popup_html = """
+    <!-- Discard Popup -->
+    <div class="popup-overlay" id="discard-popup">
+        <div class="popup-content">
+            <div class="popup-title">💸 Discard Cards</div>
+            <div class="popup-description">You must discard half of your cards (rounded up). Select cards to discard:</div>
+            <div class="discard-requirement" id="discard-requirement">Select 0 cards to discard</div>
+            <div class="resource-grid discard-grid">
+                <div class="resource-option discard-option" data-resource="1" data-available="$(current_player_resource_amounts[1])">
+                    <div class="resource-icon wood">🌲</div>
+                    <div class="resource-name">Wood</div>
+                    <div class="resource-count">Available: $(current_player_resource_amounts[1])</div>
+                    <div class="discard-controls">
+                        <button class="discard-btn minus" data-resource="1">-</button>
+                        <span class="discard-selected" id="discard-selected-1">0</span>
+                        <button class="discard-btn plus" data-resource="1">+</button>
+                    </div>
+                </div>
+                <div class="resource-option discard-option" data-resource="2" data-available="$(current_player_resource_amounts[2])">
+                    <div class="resource-icon brick">🧱</div>
+                    <div class="resource-name">Brick</div>
+                    <div class="resource-count">Available: $(current_player_resource_amounts[2])</div>
+                    <div class="discard-controls">
+                        <button class="discard-btn minus" data-resource="2">-</button>
+                        <span class="discard-selected" id="discard-selected-2">0</span>
+                        <button class="discard-btn plus" data-resource="2">+</button>
+                    </div>
+                </div>
+                <div class="resource-option discard-option" data-resource="3" data-available="$(current_player_resource_amounts[3])">
+                    <div class="resource-icon sheep">🐑</div>
+                    <div class="resource-name">Sheep</div>
+                    <div class="resource-count">Available: $(current_player_resource_amounts[3])</div>
+                    <div class="discard-controls">
+                        <button class="discard-btn minus" data-resource="3">-</button>
+                        <span class="discard-selected" id="discard-selected-3">0</span>
+                        <button class="discard-btn plus" data-resource="3">+</button>
+                    </div>
+                </div>
+                <div class="resource-option discard-option" data-resource="4" data-available="$(current_player_resource_amounts[4])">
+                    <div class="resource-icon wheat">🌾</div>
+                    <div class="resource-name">Wheat</div>
+                    <div class="resource-count">Available: $(current_player_resource_amounts[4])</div>
+                    <div class="discard-controls">
+                        <button class="discard-btn minus" data-resource="4">-</button>
+                        <span class="discard-selected" id="discard-selected-4">0</span>
+                        <button class="discard-btn plus" data-resource="4">+</button>
+                    </div>
+                </div>
+                <div class="resource-option discard-option" data-resource="5" data-available="$(current_player_resource_amounts[5])">
+                    <div class="resource-icon ore">⛰️</div>
+                    <div class="resource-name">Ore</div>
+                    <div class="resource-count">Available: $(current_player_resource_amounts[5])</div>
+                    <div class="discard-controls">
+                        <button class="discard-btn minus" data-resource="5">-</button>
+                        <span class="discard-selected" id="discard-selected-5">0</span>
+                        <button class="discard-btn plus" data-resource="5">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="popup-buttons">
+                <button class="popup-btn confirm" id="discard-confirm" disabled>Discard Cards</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Monopoly Popup -->
     <div class="popup-overlay" id="monopoly-popup">
         <div class="popup-content">
@@ -361,7 +432,7 @@ function display!(board::Board2P; launch_server::Bool=true)
             $debug_html
             $popup_html
             <div class='tiles-grid'>
-            <svg viewBox="0 0 640 640" id="ghost" class="ghost h$(get_robber_position(board.dynamic.bank))">$ghost_path</svg>
+            <svg viewBox="0 0 640 640" id="ghost" class="ghost h$(get_robber_position(board.dynamic))">$ghost_path</svg>
             $(join(["<div class='port port$i' resource='$r'>$harbor_svg</div>" for (i,r) in enumerate(board.static.ports)], "\n"))
             $(join(["<svg resource='$(board.static.tile_to_resource[i])' class='hex h$i' viewBox='0 0 512 512' data-hex='$i'>$smooth_hexagon_path</svg>" for i in 1:19], "\n"))
             $(join(["<div number='$(board.static.tile_to_number[i])' class='number-token h$i' data-number='$i'>$(board.static.tile_to_number[i])</div>" for i in 1:19 if board.static.tile_to_number[i] != 0], "\n"))
@@ -382,6 +453,84 @@ function display!(board::Board2P; launch_server::Bool=true)
                 <span>Last Dice: <b id="last-dice">$last_dice</b></span>
             </div>
             <script>
+            // Discard functionality
+            let discardAmounts = [0, 0, 0, 0, 0, 0]; // Index 0 unused, 1-5 for resources
+            const totalCards = $(sum(current_player_resource_amounts));
+            const requiredDiscards = Math.ceil(totalCards / 2);
+            const isDiscardingTurn = $(is_discarding_turn(current_player) ? "true" : "false");
+
+            function updateDiscardUI() {
+                const totalSelected = discardAmounts.slice(1).reduce((sum, amount) => sum + amount, 0);
+                const remaining = requiredDiscards - totalSelected;
+                
+                document.getElementById('discard-requirement').textContent = 
+                    remaining > 0 ? `Select \${remaining} more cards to discard` : 
+                    remaining === 0 ? 'Ready to discard' : `Selected \${-remaining} too many cards`;
+                
+                document.getElementById('discard-confirm').disabled = remaining !== 0;
+                
+                // Update display counters
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById(`discard-selected-\${i}`).textContent = discardAmounts[i];
+                }
+            }
+
+            function openDiscardPopup() {
+                if (isDiscardingTurn && requiredDiscards > 0) {
+                    document.getElementById('discard-popup').classList.add('show');
+                    updateDiscardUI();
+                }
+            }
+
+            // Discard button event listeners
+            document.querySelectorAll('.discard-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const resource = parseInt(this.dataset.resource);
+                    const isPlus = this.classList.contains('plus');
+                    const isMinus = this.classList.contains('minus');
+                    const available = parseInt(document.querySelector(`[data-resource="\${resource}"]`).dataset.available);
+
+                    if (isPlus && discardAmounts[resource] < available) {
+                        discardAmounts[resource]++;
+                    } else if (isMinus && discardAmounts[resource] > 0) {
+                        discardAmounts[resource]--;
+                    }
+                    
+                    updateDiscardUI();
+                    e.stopPropagation();
+                });
+            });
+
+            // Discard confirm button
+            document.getElementById('discard-confirm').addEventListener('click', function(e) {
+                const discardData = [
+                    discardAmounts[1], // Wood at index 0
+                    discardAmounts[2], // Brick at index 1
+                    discardAmounts[3], // Sheep at index 2
+                    discardAmounts[4], // Wheat at index 3
+                    discardAmounts[5]  // Ore at index 4
+                ];
+                
+                fetch('/move', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        type: "discard",
+                        cards: discardData
+                    })
+                }).then(resp => resp.text())
+                  .then(msg => {
+                      location.reload();
+                  });
+                
+                e.stopPropagation();
+            });
+
+            // Auto-open discard popup if it's discarding turn
+            if (isDiscardingTurn && requiredDiscards > 0) {
+                setTimeout(openDiscardPopup, 100);
+            }
+
             // Debug container toggle
             var debugContainer = document.getElementById('debug-container');
             var debugClose = document.getElementById('debug-close');
